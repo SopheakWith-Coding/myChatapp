@@ -6,7 +6,9 @@ const Login = ({navigation}) => {
     email: '',
     password: '',
   });
+
   const {email, password} = credentials;
+
   const onLoginPress = () => {
     if (!email) {
       alert('Email is required!');
@@ -23,6 +25,7 @@ const Login = ({navigation}) => {
       [name]: value,
     });
   };
+
   return (
     <View style={styles.container}>
       <View style={styles.subcontainer}>
@@ -79,4 +82,5 @@ const styles = StyleSheet.create({
     padding: 2,
   },
 });
+
 export default Login;
