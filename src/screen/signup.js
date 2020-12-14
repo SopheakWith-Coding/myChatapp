@@ -1,74 +1,82 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {StyleSheet, View, Button} from 'react-native';
 import {TextInput} from 'react-native-gesture-handler';
+import auth from '@react-native-firebase/auth';
 
-const Signup = ({navigation}) => {
-  const [credentials, setCredentials] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmpassword: '',
-  });
-  const {name, email, password, confirmpassword} = credentials;
-  const onLoginPress = () => {
-    if (!name) {
-      alert('Name is required!');
-    } else if (!email) {
-      alert('Email is required!');
-    } else if (!password) {
-      alert('Password is required');
-    } else if (password !== confirmpassword) {
-      alert('Your password did not match');
-    } else {
-      navigation.navigate('DashBoard');
-    }
+class Signup extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      name: '',
+      email: '',
+      password: '',
+      setConfirmPassword: '',
+    };
+  }
+
+  onSignUp = () => {
+    const {navigation} = this.props;
+    const {email, password} = this.state;
+
+    auth()
+      .createUserWithEmailAndPassword(email, password)
+      .then(() => {
+        alert('User is created');
+        navigation.push('LoginScreen');
+      })
+      .catch((err) => {
+        if (err.code === 'auth/email-already-in-use') {
+          alert('Email is already use.');
+        } else if (err.code === 'auth/weak-password') {
+          alert('The password is too weak.');
+        }
+      });
   };
 
-  const HandlerOnchange = (name, value) => {
-    setCredentials({
-      ...credentials,
-      [name]: value,
-    });
-  };
-  return (
-    <View style={styles.container}>
-      <View style={styles.subcontainer}>
-        <TextInput
-          style={styles.textinput}
-          placeholder="Enter your name"
-          onChangeText={(text) => HandlerOnchange('name', text)}
-        />
-        <TextInput
-          style={styles.textinput}
-          placeholder="Enter your email"
-          onChangeText={(text) => HandlerOnchange('email', text)}
-        />
-        <TextInput
-          style={styles.textinput}
-          placeholder="Password"
-          onChangeText={(text) => HandlerOnchange('password', text)}
-        />
-        <TextInput
-          style={styles.textinput}
-          placeholder="Confrim password"
-          onChangeText={(text) => HandlerOnchange('confirmpassword', text)}
-        />
-        <View style={{alignItems: 'center'}}>
-          <View style={styles.btncontainer}>
-            {/* <Button title="Sing Up" onPress={() => navigation.navigate('')} /> */}
-            <Button title="Sing Up" onPress={() => onLoginPress()} />
-          </View>
-          <View style={styles.btncontainer}>
-            <Button
-              title="Log In"
-              onPress={() => navigation.navigate('LogIn')}
-            />
+  render() {
+    return (
+      <View style={styles.container}>
+        <View style={styles.subcontainer}>
+          <TextInput
+            style={styles.textinput}
+            placeholder="Enter your name"
+            autoCapitalize="none"
+            autoCorrect={false}
+            onChangeText={(name) => this.setState({name: name})}
+          />
+          <TextInput
+            style={styles.textinput}
+            placeholder="Enter your email"
+            autoCapitalize="none"
+            autoCorrect={false}
+            onChangeText={(email) => this.setState({email: email})}
+          />
+          <TextInput
+            style={styles.textinput}
+            placeholder="Password"
+            textContentType={'oneTimeCode'}
+            secureTextEntry
+            onChangeText={(password) => this.setState({password: password})}
+          />
+          <TextInput
+            style={styles.textinput}
+            placeholder="Confrim password"
+            textContentType={'oneTimeCode'}
+            secureTextEntry
+            onChangeText={(confirmpassword) =>
+              this.setState({confirmpassword: confirmpassword})
+            }
+          />
+          <View style={{alignItems: 'center'}}>
+            <View style={styles.btncontainer}>
+              <Button title="Sign Up" onPress={this.onSignUp} />
+            </View>
           </View>
         </View>
       </View>
-    </View>
-  );
-};
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -97,4 +105,5 @@ const styles = StyleSheet.create({
     padding: 2,
   },
 });
+
 export default Signup;

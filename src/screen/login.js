@@ -1,59 +1,72 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {StyleSheet, View, Button, TextInput} from 'react-native';
+import auth from '@react-native-firebase/auth';
 
-const Login = ({navigation}) => {
-  const [credentials, setCredentials] = useState({
-    email: '',
-    password: '',
-  });
+class Login extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      email: '',
+      password: '',
+    };
+  }
 
-  const {email, password} = credentials;
+  onLogin = () => {
+    const {navigation} = this.props;
+    const {email, password} = this.state;
 
-  const onLoginPress = () => {
-    if (!email) {
-      alert('Email is required!');
-    } else if (!password) {
-      alert('Password is required');
-    } else {
-      navigation.navigate('DashBoard');
-    }
+    auth()
+      .signInWithEmailAndPassword(email, password)
+      .then(() => {
+        navigation.push('DashboardScreen');
+      })
+      .catch((err) => {
+        if (err.code === 'auth/wrong-password') {
+          alert('Incorrect Password');
+        } else if (err.code === 'auth/invalid-email') {
+          alert('Invalid Email.');
+        }
+      });
   };
 
-  const HandlerOnchange = (name, value) => {
-    setCredentials({
-      ...credentials,
-      [name]: value,
-    });
-  };
+  render() {
+    const {email, password} = this.state;
+    const {navigation} = this.props;
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.subcontainer}>
-        <TextInput
-          style={styles.textinput}
-          placeholder="Enter your email"
-          onChangeText={(text) => HandlerOnchange('email', text)}
-        />
-        <TextInput
-          style={styles.textinput}
-          placeholder="Password"
-          // secureTextEntry="true"
-          onChangeText={(text) => HandlerOnchange('password', text)}
-        />
-        <View style={styles.btncontainer}>
-          {/* <Button title="LOG IN" onPress={() => navigation.navigate('')} /> */}
-          <Button title="LOG IN" onPress={() => onLoginPress()} />
-        </View>
-        <View style={styles.btncontainer}>
-          <Button
-            title="CREATE NEW ACCOUNT"
-            onPress={() => navigation.navigate('SignUp')}
+    return (
+      <View style={styles.container}>
+        <View style={styles.subcontainer}>
+          <TextInput
+            style={styles.textinput}
+            placeholder="Enter your email"
+            autoCapitalize="none"
+            autoCorrect={false}
+            onChangeText={(email) => this.setState({email: email})}
           />
+          <TextInput
+            style={styles.textinput}
+            placeholder="Password"
+            secureTextEntry
+            onChangeText={(password) => this.setState({password: password})}
+          />
+          <View style={styles.btncontainer}>
+            <Button
+              title="Log In"
+              disabled={email.length === 0 || password.length === 0}
+              onPress={this.onLogin}
+            />
+          </View>
+          <View style={styles.btncontainer}>
+            <Button
+              title="Create an Account"
+              onPress={() => navigation.push('SignUpScreen')}
+            />
+          </View>
         </View>
       </View>
-    </View>
-  );
-};
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -82,5 +95,4 @@ const styles = StyleSheet.create({
     padding: 2,
   },
 });
-
 export default Login;

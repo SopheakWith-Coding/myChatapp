@@ -1,11 +1,14 @@
 import React from 'react';
 import {View, Text} from 'react-native';
 
-const Dashboard = () => {
-  return (
-    <View>
-      <Text>Hello Dashboard</Text>
-    </View>
-  );
-};
+class Dashboard extends React.Component {
+  render() {
+    return (
+      <View>
+        <Text>Hello Dashboard</Text>
+      </View>
+    );
+  }
+}
+
 export default Dashboard;
