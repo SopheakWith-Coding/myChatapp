@@ -18,7 +18,8 @@ class Login extends React.Component {
     auth()
       .signInWithEmailAndPassword(email, password)
       .then(() => {
-        navigation.push('DashboardScreen');
+        alert('Login succesful')
+        // navigation.push('ChatScreen');
       })
       .catch((err) => {
         if (err.code === 'auth/wrong-password') {
