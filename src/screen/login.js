@@ -12,15 +12,10 @@ class Login extends React.Component {
   }
 
   onLogin = () => {
-    const {navigation} = this.props;
     const {email, password} = this.state;
-
     auth()
       .signInWithEmailAndPassword(email, password)
-      .then(() => {
-        alert('Login succesful')
-        // navigation.push('ChatScreen');
-      })
+      .then(() => {})
       .catch((err) => {
         if (err.code === 'auth/wrong-password') {
           alert('Incorrect Password');
@@ -60,7 +55,7 @@ class Login extends React.Component {
           <View style={styles.btncontainer}>
             <Button
               title="Create an Account"
-              onPress={() => navigation.push('SignUpScreen')}
+              onPress={() => navigation.navigate('SignUpScreen')}
             />
           </View>
         </View>

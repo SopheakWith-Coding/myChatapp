@@ -1,31 +1,60 @@
 import React from 'react';
-import {View, Text, StyleSheet, Dimensions, Image} from 'react-native';
+import {
+  StyleSheet,
+  Dimensions,
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
+import database from '@react-native-firebase/database';
 
 const screenWidth = Dimensions.get('screen').width;
 
 export default class Chat extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      uuid: '',
+      name: '',
+      profileImage: '',
+      users: [],
+    };
+  }
+
+  async componentDidMount() {
+    const dbRef = database().ref('users');
+    const data = await dbRef.once('value');
+    this.setState({users: data.val()});
+  }
   render() {
+    const {users} = this.state;
+    const {navigation} = this.props;
     return (
       <View style={styles.container}>
+        {Object.values(users).map((user) => (
+          <TouchableOpacity onPress={() => navigation.navigate('Dashboard')}>
+            <View style={styles.subcontainer}>
+              <View style={styles.imageWrapper}>
+                <Image
+                  style={{width: 60, height: 60, borderRadius: 50}}
+                  source={{
+                    uri: '{user.profileImage}',
+                  }}
+                />
+              </View>
 
-        <View style={styles.subcontainer}>
-          <View style={styles.imageWrapper}>
-            <Image
-              style={{width: 80, height: 80, borderRadius: 50}}
-              source={{
-                uri:
-                  'https://about.abc.net.au/wp-content/uploads/2018/05/JaneConnorsCorpSite-250x250.jpg',
-              }}
-            />
-          </View>
-          <View style={styles.TextWrapper}>
-            <Text style={styles.texttitle}>Sopheak</Text>
-            <Text style={styles.textsubtitle}>Helo how are you?</Text>
-          </View>
-          <View style={styles.TimeWrapper}>
-            <Text>9:40pm</Text>
-          </View>
-        </View>
+              <View style={styles.TextWrapper}>
+                <Text style={styles.texttitle}>{user.name}</Text>
+                <Text style={styles.textsubtitle}>Helo how are you?</Text>
+              </View>
+
+              <View style={styles.TimeWrapper}>
+                <Text>9:40pm</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        ))}
       </View>
     );
   }
@@ -45,6 +74,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   imageWrapper: {
+    marginTop: 10,
     marginLeft: 10,
   },
   TextWrapper: {

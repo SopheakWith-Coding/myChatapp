@@ -8,6 +8,7 @@ import auth from '@react-native-firebase/auth';
 
 import LoginScreen from './src/screen/login';
 import SignUpScreen from './src/screen/signup';
+import Dashboard from './src/screen/dashboard';
 
 import ChatScreen from './src/screen/chat';
 import ProfileScreen from './src/screen/profile';
@@ -27,6 +28,7 @@ export default class Navigation extends React.PureComponent {
 
   render() {
     const {user} = this.state;
+
     function chatStack() {
       return (
         <Stack.Navigator>
@@ -35,6 +37,7 @@ export default class Navigation extends React.PureComponent {
             component={ChatScreen}
             options={{title: 'Chat'}}
           />
+          <Stack.Screen name="Dashboard" component={Dashboard} />
         </Stack.Navigator>
       );
     }

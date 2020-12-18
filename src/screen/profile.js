@@ -1,9 +1,28 @@
 import React from 'react';
-import {View, Text, StyleSheet, Image, Dimensions, Button} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Dimensions,
+  Button,
+  TouchableOpacity,
+} from 'react-native';
 import auth from '@react-native-firebase/auth';
 
 const screenWidth = Dimensions.get('screen').width;
 export default class Profile extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      name: '',
+      email: '',
+      password: '',
+      ConfirmPassword: '',
+      uuid: '',
+      profileImage: '',
+    };
+  }
 
   Loutout = () => {
     auth().signOut();
@@ -14,15 +33,19 @@ export default class Profile extends React.Component {
       <View style={styles.container}>
         <View style={styles.subcontainer}>
           <View style={styles.imageWrapper}>
-            <Image
-              style={{width: 100, height: 100, borderRadius: 50}}
-              source={{
-                uri:
-                  'https://about.abc.net.au/wp-content/uploads/2018/05/JaneConnorsCorpSite-250x250.jpg',
-              }}
-            />
+            <TouchableOpacity onPress={() => this.updateProfile}>
+              <Image
+                style={{width: 120, height: 120, borderRadius: 60}}
+                source={{
+                  uri:
+                    'https://about.abc.net.au/wp-content/uploads/2018/05/JaneConnorsCorpSite-250x250.jpg',
+                }}
+              />
+            </TouchableOpacity>
           </View>
-          <Text style={styles.texttiitle}>Sopheak Seng</Text>
+          <Text style={styles.texttiitle} onPress={() => alert('hello!')}>
+            Sopheak Seng
+          </Text>
           <Text style={styles.textsubtitle}>+855 0969655222</Text>
         </View>
 

@@ -2,6 +2,7 @@ import React from 'react';
 import {StyleSheet, View, Button} from 'react-native';
 import {TextInput} from 'react-native-gesture-handler';
 import auth from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
 
 class Signup extends React.Component {
   constructor(props) {
@@ -10,19 +11,32 @@ class Signup extends React.Component {
       name: '',
       email: '',
       password: '',
-      setConfirmPassword: '',
+      ConfirmPassword: '',
+      uuid: '',
+      profileImage: '',
     };
   }
-
   onSignUp = () => {
-    const {navigation} = this.props;
-    const {email, password} = this.state;
+    // const {navigation} = this.props;
+    const {name, email, password, confirmpassword, profileImage} = this.state;
 
     auth()
       .createUserWithEmailAndPassword(email, password)
-      .then(() => {
-        alert('User is created');
-        navigation.push('LoginScreen');
+      .then((user) => {
+        const uid = user.user.uid;
+        database()
+          .ref(`/users/${uid}`)
+          .set({
+            name: name,
+            email: email,
+            password: password,
+            confirmpassword: confirmpassword,
+            profileImage: profileImage,
+            uuid: uid,
+          })
+          .then(() => console.log('Data set.'));
+        // alert('User is created');
+        // navigation.push('LoginScreen');
       })
       .catch((err) => {
         if (err.code === 'auth/email-already-in-use') {
