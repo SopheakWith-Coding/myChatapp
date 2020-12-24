@@ -9,19 +9,22 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
 
 const screenWidth = Dimensions.get('screen').width;
 export default class Profile extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: '',
-      email: '',
-      password: '',
-      ConfirmPassword: '',
-      uuid: '',
-      profileImage: '',
+      user: null,
     };
+  }
+
+  async componentDidMount() {
+    const authUid = auth().currentUser.uid;
+    const ref = database().ref(`users/${authUid}`);
+    const data = await ref.once('value');
+    this.setState({user: data.val()});
   }
 
   Loutout = () => {
@@ -43,9 +46,7 @@ export default class Profile extends React.Component {
               />
             </TouchableOpacity>
           </View>
-          <Text style={styles.texttiitle} onPress={() => alert('hello!')}>
-            Sopheak Seng
-          </Text>
+          <Text style={styles.texttiitle}>Sopheak Seng</Text>
           <Text style={styles.textsubtitle}>+855 0969655222</Text>
         </View>
 

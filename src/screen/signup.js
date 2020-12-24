@@ -1,24 +1,35 @@
 import React from 'react';
-import {StyleSheet, View, Button} from 'react-native';
+import {StyleSheet, View, Button, TouchableOpacity, Image} from 'react-native';
 import {TextInput} from 'react-native-gesture-handler';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 
 class Signup extends React.Component {
+
   constructor(props) {
     super(props);
     this.state = {
       name: '',
       email: '',
+      phonenumber: '',
+      datOfBirth: '',
       password: '',
-      ConfirmPassword: '',
+      confirmPassword: '',
       uuid: '',
       profileImage: '',
     };
   }
+
   onSignUp = () => {
-    // const {navigation} = this.props;
-    const {name, email, password, confirmpassword, profileImage} = this.state;
+    const {
+      name,
+      email,
+      phonenumber,
+      datOfBirth,
+      password,
+      confirmPassword,
+      profileImage,
+    } = this.state;
 
     auth()
       .createUserWithEmailAndPassword(email, password)
@@ -29,14 +40,14 @@ class Signup extends React.Component {
           .set({
             name: name,
             email: email,
+            phonenumber: phonenumber,
+            datOfBirth: datOfBirth,
             password: password,
-            confirmpassword: confirmpassword,
+            confirmpassword: confirmPassword,
             profileImage: profileImage,
             uuid: uid,
           })
           .then(() => console.log('Data set.'));
-        // alert('User is created');
-        // navigation.push('LoginScreen');
       })
       .catch((err) => {
         if (err.code === 'auth/email-already-in-use') {
@@ -51,6 +62,17 @@ class Signup extends React.Component {
     return (
       <View style={styles.container}>
         <View style={styles.subcontainer}>
+          <View style={styles.imageWrapper}>
+            <TouchableOpacity onPress={() => this.updateProfile}>
+              <Image
+                style={{width: 120, height: 120, borderRadius: 60}}
+                source={{
+                  uri:
+                    'https://about.abc.net.au/wp-content/uploads/2018/05/JaneConnorsCorpSite-250x250.jpg',
+                }}
+              />
+            </TouchableOpacity>
+          </View>
           <TextInput
             style={styles.textinput}
             placeholder="Enter your name"
@@ -67,6 +89,22 @@ class Signup extends React.Component {
           />
           <TextInput
             style={styles.textinput}
+            placeholder="Phone Number"
+            textContentType={'oneTimeCode'}
+            onChangeText={(phonenumber) =>
+              this.setState({phonenumber: phonenumber})
+            }
+          />
+          <TextInput
+            style={styles.textinput}
+            placeholder="Dat of birth"
+            textContentType={'oneTimeCode'}
+            onChangeText={(datOfBirth) =>
+              this.setState({datOfBirth: datOfBirth})
+            }
+          />
+          <TextInput
+            style={styles.textinput}
             placeholder="Password"
             textContentType={'oneTimeCode'}
             secureTextEntry
@@ -74,7 +112,7 @@ class Signup extends React.Component {
           />
           <TextInput
             style={styles.textinput}
-            placeholder="Confrim password"
+            placeholder="Confirm password"
             textContentType={'oneTimeCode'}
             secureTextEntry
             onChangeText={(confirmpassword) =>
@@ -95,11 +133,11 @@ class Signup extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
   },
   subcontainer: {
-    marginTop: 300,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 40,
     marginHorizontal: 10,
   },
   textinput: {
@@ -117,6 +155,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: '#ffd54f',
     padding: 2,
+  },
+  imageWrapper: {
+    marginBottom: 20,
   },
 });
 

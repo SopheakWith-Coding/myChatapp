@@ -25,36 +25,42 @@ export default class Chat extends React.Component {
   async componentDidMount() {
     const dbRef = database().ref('users');
     const data = await dbRef.once('value');
-    this.setState({users: data.val()});
+    this.setState({users: Object.values(data.val())});
   }
+
   render() {
     const {users} = this.state;
     const {navigation} = this.props;
+
     return (
       <View style={styles.container}>
-        {Object.values(users).map((user) => (
-          <TouchableOpacity onPress={() => navigation.navigate('Dashboard')}>
-            <View style={styles.subcontainer}>
-              <View style={styles.imageWrapper}>
-                <Image
-                  style={{width: 60, height: 60, borderRadius: 50}}
-                  source={{
-                    uri: '{user.profileImage}',
-                  }}
-                />
-              </View>
+        {users.map((user, value) => {
+          return (
+            <TouchableOpacity
+              key={value}
+              onPress={() => navigation.navigate('Dashboard')}>
+              <View style={styles.subcontainer}>
+                <View style={styles.imageWrapper}>
+                  <Image
+                    style={{width: 60, height: 60, borderRadius: 50}}
+                    source={{
+                      uri: '{user.profileImage}',
+                    }}
+                  />
+                </View>
 
-              <View style={styles.TextWrapper}>
-                <Text style={styles.texttitle}>{user.name}</Text>
-                <Text style={styles.textsubtitle}>Helo how are you?</Text>
-              </View>
+                <View style={styles.TextWrapper}>
+                  <Text style={styles.texttitle}>{user.name}</Text>
+                  <Text style={styles.textsubtitle}>Helo how are you?</Text>
+                </View>
 
-              <View style={styles.TimeWrapper}>
-                <Text>9:40pm</Text>
+                <View style={styles.TimeWrapper}>
+                  <Text>9:40pm</Text>
+                </View>
               </View>
-            </View>
-          </TouchableOpacity>
-        ))}
+            </TouchableOpacity>
+          );
+        })}
       </View>
     );
   }
