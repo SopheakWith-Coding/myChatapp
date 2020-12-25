@@ -3,9 +3,9 @@ import {StyleSheet, View, Button, TouchableOpacity, Image} from 'react-native';
 import {TextInput} from 'react-native-gesture-handler';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
+import ImagePicker from 'react-native-image-crop-picker';
 
 class Signup extends React.Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -16,8 +16,18 @@ class Signup extends React.Component {
       password: '',
       confirmPassword: '',
       uuid: '',
-      profileImage: '',
+      profileImage: null,
     };
+  }
+
+  handleChoosePhoto() {
+    ImagePicker.openPicker({
+      width: 400,
+      height: 400,
+      cropping: true,
+    }).then((image) => {
+      this.setState({profileImage: image.path});
+    });
   }
 
   onSignUp = () => {
@@ -59,18 +69,28 @@ class Signup extends React.Component {
   };
 
   render() {
+    const imagePath = this.state.profileImage;
     return (
       <View style={styles.container}>
         <View style={styles.subcontainer}>
           <View style={styles.imageWrapper}>
-            <TouchableOpacity onPress={() => this.updateProfile}>
-              <Image
-                style={{width: 120, height: 120, borderRadius: 60}}
-                source={{
-                  uri:
-                    'https://about.abc.net.au/wp-content/uploads/2018/05/JaneConnorsCorpSite-250x250.jpg',
-                }}
-              />
+            <TouchableOpacity onPress={() => this.handleChoosePhoto()}>
+              {imagePath ? (
+                <Image
+                  style={styles.styleImage}
+                  source={{
+                    uri: imagePath,
+                  }}
+                />
+              ) : (
+                <Image
+                  style={styles.styleImage}
+                  source={{
+                    uri:
+                      'https://about.abc.net.au/wp-content/uploads/2018/05/JaneConnorsCorpSite-250x250.jpg',
+                  }}
+                />
+              )}
             </TouchableOpacity>
           </View>
           <TextInput
@@ -158,6 +178,11 @@ const styles = StyleSheet.create({
   },
   imageWrapper: {
     marginBottom: 20,
+  },
+  styleImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
   },
 });
 

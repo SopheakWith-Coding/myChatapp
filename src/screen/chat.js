@@ -31,7 +31,6 @@ export default class Chat extends React.Component {
   render() {
     const {users} = this.state;
     const {navigation} = this.props;
-
     return (
       <View style={styles.container}>
         {users.map((user, value) => {
