@@ -1,9 +1,17 @@
 import React from 'react';
-import {StyleSheet, View, Button, TouchableOpacity, Image} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Button,
+  TouchableOpacity,
+  Image,
+  Platform,
+} from 'react-native';
 import {TextInput} from 'react-native-gesture-handler';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import ImagePicker from 'react-native-image-crop-picker';
+import storage from '@react-native-firebase/storage';
 
 class Signup extends React.Component {
   constructor(props) {
@@ -20,15 +28,21 @@ class Signup extends React.Component {
     };
   }
 
-  handleChoosePhoto() {
+  handleChoosePhoto = async () => {
     ImagePicker.openPicker({
       width: 400,
       height: 400,
       cropping: true,
-    }).then((image) => {
-      this.setState({profileImage: image.path});
+    }).then(async (image) => {
+      const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.uri;
+      const uploadTats = storage().ref(`profileImage/${imageUri}`);
+      await uploadTats.putFile(imageUri);
+      const url = await storage()
+        .ref(`profileImage/${imageUri}`)
+        .getDownloadURL();
+      this.setState({profileImage: url});
     });
-  }
+  };
 
   onSignUp = () => {
     const {

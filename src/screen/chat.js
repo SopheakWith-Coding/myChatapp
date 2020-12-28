@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import database from '@react-native-firebase/database';
+import auth from '@react-native-firebase/auth';
 
 const screenWidth = Dimensions.get('screen').width;
 
@@ -29,11 +30,14 @@ export default class Chat extends React.Component {
   }
 
   render() {
+    const {uid} = auth().currentUser;
     const {users} = this.state;
     const {navigation} = this.props;
+    const filTerUser = users.filter((val) => val.uuid !== uid);
+
     return (
       <View style={styles.container}>
-        {users.map((user, value) => {
+        {filTerUser.map((user, value) => {
           return (
             <TouchableOpacity
               key={value}
@@ -42,9 +46,7 @@ export default class Chat extends React.Component {
                 <View style={styles.imageWrapper}>
                   <Image
                     style={{width: 60, height: 60, borderRadius: 50}}
-                    source={{
-                      uri: '{user.profileImage}',
-                    }}
+                    source={{uri: `${user.profileImage}`}}
                   />
                 </View>
 

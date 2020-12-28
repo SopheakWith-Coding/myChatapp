@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {
   View,
   Text,
@@ -16,7 +16,7 @@ export default class Profile extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      user: null,
+      users: [],
     };
   }
 
@@ -24,7 +24,7 @@ export default class Profile extends React.Component {
     const authUid = auth().currentUser.uid;
     const ref = database().ref(`users/${authUid}`);
     const data = await ref.once('value');
-    this.setState({user: data.val()});
+    this.setState({users: data.val()});
   }
 
   Loutout = () => {
@@ -32,22 +32,21 @@ export default class Profile extends React.Component {
   };
 
   render() {
+    const {users} = this.state;
+    console.log(users)
     return (
       <View style={styles.container}>
         <View style={styles.subcontainer}>
           <View style={styles.imageWrapper}>
-            <TouchableOpacity onPress={() => this.updateProfile}>
-              <Image
-                style={{width: 120, height: 120, borderRadius: 60}}
-                source={{
-                  uri:
-                    'https://about.abc.net.au/wp-content/uploads/2018/05/JaneConnorsCorpSite-250x250.jpg',
-                }}
-              />
-            </TouchableOpacity>
+            <Image
+              style={{width: 120, height: 120, borderRadius: 60}}
+              source={{
+                uri: `${users.profileImage}`,
+              }}
+            />
           </View>
-          <Text style={styles.texttiitle}>Sopheak Seng</Text>
-          <Text style={styles.textsubtitle}>+855 0969655222</Text>
+          <Text style={styles.texttiitle}>{users.name}</Text>
+          <Text style={styles.textsubtitle}>{users.phonenumber}</Text>
         </View>
 
         <View style={styles.informationcontainer}>
@@ -61,7 +60,7 @@ export default class Profile extends React.Component {
             />
           </View>
           <View style={styles.textViewinformation}>
-            <Text style={styles.textinformation}>Seng Sopheak</Text>
+            <Text style={styles.textinformation}>{users.name}</Text>
           </View>
         </View>
 
@@ -76,7 +75,7 @@ export default class Profile extends React.Component {
             />
           </View>
           <View style={styles.textViewinformation}>
-            <Text style={styles.textinformation}>02 April 1999</Text>
+            <Text style={styles.textinformation}>{users.datOfBirth}</Text>
           </View>
         </View>
 
@@ -91,7 +90,7 @@ export default class Profile extends React.Component {
             />
           </View>
           <View style={styles.textViewinformation}>
-            <Text style={styles.textinformation}>0969655222</Text>
+            <Text style={styles.textinformation}>{users.phonenumber}</Text>
           </View>
         </View>
         <View style={styles.viewButton}>
