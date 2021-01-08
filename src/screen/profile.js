@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -6,16 +6,20 @@ import {
   Image,
   Dimensions,
   Button,
-  TouchableOpacity,
+  Platform,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
+import ImagePicker from 'react-native-image-crop-picker';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+import storage from '@react-native-firebase/storage';
 
 const screenWidth = Dimensions.get('screen').width;
 export default class Profile extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      profileImage: null,
       users: [],
     };
   }
@@ -30,26 +34,54 @@ export default class Profile extends React.Component {
   Loutout = () => {
     auth().signOut();
   };
-
+  handleChoosePhoto = async () => {
+    ImagePicker.openPicker({
+      width: 400,
+      height: 400,
+      cropping: true,
+    }).then(async (image) => {
+      const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.uri;
+      const uploadTats = storage().ref(`profileImage/${imageUri}`);
+      await uploadTats.putFile(imageUri);
+      const url = await storage()
+        .ref(`profileImage/${imageUri}`)
+        .getDownloadURL();
+      const authUid = auth().currentUser.uid;
+      database()
+        .ref(`users/${authUid}`)
+        .update({
+          profileImage: url,
+        })
+        .then(() => this.setState({profileImage: url}));
+    });
+  };
   render() {
     const {users} = this.state;
-    console.log(users)
+
+    const image = users.profileImage
+      ? {uri: users.profileImage}
+      : {
+          uri:
+            'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=',
+        };
     return (
       <View style={styles.container}>
-        <View style={styles.subcontainer}>
+        <View style={styles.subContainer}>
           <View style={styles.imageWrapper}>
-            <Image
-              style={{width: 120, height: 120, borderRadius: 60}}
-              source={{
-                uri: `${users.profileImage}`,
-              }}
-            />
+            <TouchableOpacity onPress={() => this.handleChoosePhoto()}>
+              <Image
+                style={{width: 120, height: 120, borderRadius: 60}}
+                source={image}
+              />
+            </TouchableOpacity>
           </View>
-          <Text style={styles.texttiitle}>{users.name}</Text>
-          <Text style={styles.textsubtitle}>{users.phonenumber}</Text>
+          <Text style={styles.textTitle}>
+            {users.firstName} {users.lastName}
+          </Text>
+          <Text style={styles.textSubtitle}>{users.phonenumber}</Text>
         </View>
 
-        <View style={styles.informationcontainer}>
+        <View style={styles.informationContainer}>
           <View style={styles.imageView}>
             <Image
               style={{width: 30, height: 30}}
@@ -59,12 +91,14 @@ export default class Profile extends React.Component {
               }}
             />
           </View>
-          <View style={styles.textViewinformation}>
-            <Text style={styles.textinformation}>{users.name}</Text>
+          <View style={styles.textViewInformation}>
+            <Text style={styles.textInformation}>
+              {users.firstName} {users.lastName}
+            </Text>
           </View>
         </View>
 
-        <View style={styles.informationcontainer}>
+        <View style={styles.informationContainer}>
           <View style={styles.imageView}>
             <Image
               style={{width: 30, height: 30}}
@@ -74,12 +108,14 @@ export default class Profile extends React.Component {
               }}
             />
           </View>
-          <View style={styles.textViewinformation}>
-            <Text style={styles.textinformation}>{users.datOfBirth}</Text>
+          <View style={styles.textViewInformation}>
+            <Text style={styles.textInformation}>
+              {users.day} {users.month} {users.year}
+            </Text>
           </View>
         </View>
 
-        <View style={styles.informationcontainer}>
+        <View style={styles.informationContainer}>
           <View style={styles.imageView}>
             <Image
               style={{width: 30, height: 30}}
@@ -89,8 +125,8 @@ export default class Profile extends React.Component {
               }}
             />
           </View>
-          <View style={styles.textViewinformation}>
-            <Text style={styles.textinformation}>{users.phonenumber}</Text>
+          <View style={styles.textViewInformation}>
+            <Text style={styles.textInformation}>{users.phonenumber}</Text>
           </View>
         </View>
         <View style={styles.viewButton}>
@@ -105,7 +141,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  subcontainer: {
+  subContainer: {
     justifyContent: 'center',
     alignItems: 'center',
     height: 250,
@@ -114,14 +150,14 @@ const styles = StyleSheet.create({
   imageWrapper: {
     marginBottom: 15,
   },
-  texttiitle: {
+  textTitle: {
     fontSize: 28,
   },
-  textsubtitle: {
+  textSubtitle: {
     fontSize: 18,
     color: 'lightgrey',
   },
-  informationcontainer: {
+  informationContainer: {
     backgroundColor: 'white',
     height: 50,
     width: screenWidth,
@@ -134,11 +170,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  textViewinformation: {
+  textViewInformation: {
     flex: 1,
     justifyContent: 'center',
   },
-  textinformation: {
+  textInformation: {
     marginLeft: 20,
     fontSize: 20,
   },

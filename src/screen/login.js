@@ -1,7 +1,16 @@
 import React from 'react';
-import {StyleSheet, View, Button, TextInput} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Button,
+  TextInput,
+  Dimensions,
+  Image,
+  Text,
+} from 'react-native';
 import auth from '@react-native-firebase/auth';
 
+const screenWidth = Dimensions.get('screen').width;
 class Login extends React.Component {
   constructor(props) {
     super(props);
@@ -31,6 +40,16 @@ class Login extends React.Component {
 
     return (
       <View style={styles.container}>
+        <View style={styles.ImageWrapper}>
+          <Image
+            style={{width: 120, height: 120, borderRadius: 60}}
+            source={{
+              uri:
+                'https://image.freepik.com/free-vector/colorful-logo-chat_1017-1721.jpg',
+            }}
+          />
+          <Text style={styles.textTitle}>SIGN IN</Text>
+        </View>
         <View style={styles.subcontainer}>
           <TextInput
             style={styles.textinput}
@@ -55,7 +74,7 @@ class Login extends React.Component {
           <View style={styles.btncontainer}>
             <Button
               title="Create an Account"
-              onPress={() => navigation.navigate('SignUpScreen')}
+              onPress={() => navigation.navigate('Sign Up')}
             />
           </View>
         </View>
@@ -67,17 +86,24 @@ class Login extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
+  },
+  ImageWrapper: {
+    marginVertical: 40,
+    alignItems: 'center',
+  },
+  textTitle: {
+    marginTop: 20,
+    fontSize: 22,
+    fontWeight: 'bold',
   },
   subcontainer: {
-    marginTop: 400,
-    marginHorizontal: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   textinput: {
     marginTop: 15,
     lineHeight: 25,
-    width: 395,
+    width: screenWidth - 40,
     padding: 12,
     backgroundColor: 'white',
     fontSize: 18,
@@ -85,7 +111,7 @@ const styles = StyleSheet.create({
   },
   btncontainer: {
     marginTop: 15,
-    width: 395,
+    width: screenWidth - 40,
     borderRadius: 10,
     backgroundColor: '#ffd54f',
     padding: 2,

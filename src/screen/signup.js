@@ -2,10 +2,11 @@ import React from 'react';
 import {
   StyleSheet,
   View,
-  Button,
   TouchableOpacity,
   Image,
   Platform,
+  Dimensions,
+  Text,
 } from 'react-native';
 import {TextInput} from 'react-native-gesture-handler';
 import auth from '@react-native-firebase/auth';
@@ -13,14 +14,19 @@ import database from '@react-native-firebase/database';
 import ImagePicker from 'react-native-image-crop-picker';
 import storage from '@react-native-firebase/storage';
 
+const screenWidth = Dimensions.get('screen').width;
+
 class Signup extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: '',
+      firstName: '',
+      lastName: '',
       email: '',
       phonenumber: '',
-      datOfBirth: '',
+      day: '',
+      month: '',
+      year: '',
       password: '',
       confirmPassword: '',
       uuid: '',
@@ -46,10 +52,13 @@ class Signup extends React.Component {
 
   onSignUp = () => {
     const {
-      name,
+      firstName,
+      lastName,
       email,
       phonenumber,
-      datOfBirth,
+      day,
+      month,
+      year,
       password,
       confirmPassword,
       profileImage,
@@ -62,10 +71,13 @@ class Signup extends React.Component {
         database()
           .ref(`/users/${uid}`)
           .set({
-            name: name,
+            firstName: firstName,
+            lastName: lastName,
             email: email,
             phonenumber: phonenumber,
-            datOfBirth: datOfBirth,
+            day: day,
+            month: month,
+            year: year,
             password: password,
             confirmpassword: confirmPassword,
             profileImage: profileImage,
@@ -82,82 +94,143 @@ class Signup extends React.Component {
       });
   };
 
+  validation() {
+    const {
+      firstName,
+      lastName,
+      email,
+      phonenumber,
+      day,
+      month,
+      year,
+      password,
+      confirmPassword,
+    } = this.state;
+
+    const passwordAndConfirmPassword =
+      password.length !== 0 &&
+      confirmPassword.length !== 0 &&
+      password === confirmPassword;
+
+    const firstNameAndLastName =
+      firstName.length !== 0 && lastName.length !== 0;
+
+    const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    const emailAndPhoneNumber = reg.test(email) && phonenumber.length !== 0;
+    const datOfBirth =
+      day.length !== 0 && month.length !== 0 && year.length !== 0;
+
+    if (
+      passwordAndConfirmPassword &&
+      firstNameAndLastName &&
+      emailAndPhoneNumber &&
+      datOfBirth
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+
   render() {
-    const imagePath = this.state.profileImage;
+    const {profileImage} = this.state;
+
+    const placeholderImage =
+      'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
+    const imagePath = profileImage ? profileImage : placeholderImage;
+
     return (
-      <View style={styles.container}>
-        <View style={styles.subcontainer}>
-          <View style={styles.imageWrapper}>
-            <TouchableOpacity onPress={() => this.handleChoosePhoto()}>
-              {imagePath ? (
-                <Image
-                  style={styles.styleImage}
-                  source={{
-                    uri: imagePath,
-                  }}
-                />
-              ) : (
-                <Image
-                  style={styles.styleImage}
-                  source={{
-                    uri:
-                      'https://about.abc.net.au/wp-content/uploads/2018/05/JaneConnorsCorpSite-250x250.jpg',
-                  }}
-                />
-              )}
-            </TouchableOpacity>
+      <View style={styles.Container}>
+        <View style={styles.ImageWrapper}>
+          <TouchableOpacity
+            activeOpacity={0.5}
+            onPress={() => this.handleChoosePhoto()}>
+            <Image style={styles.styleImage} source={{uri: imagePath}} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.InformationWrapper}>
+          <View style={styles.FullNameWrapper}>
+            <TextInput
+              style={styles.FullNameInput}
+              placeholder="Enter first name"
+              autoCorrect={false}
+              onChangeText={(firstName) =>
+                this.setState({firstName: firstName})
+              }
+            />
+            <TextInput
+              style={styles.FullNameInput}
+              placeholder="Enter last name"
+              autoCorrect={false}
+              onChangeText={(lastName) => this.setState({lastName: lastName})}
+            />
           </View>
-          <TextInput
-            style={styles.textinput}
-            placeholder="Enter your name"
-            autoCapitalize="none"
-            autoCorrect={false}
-            onChangeText={(name) => this.setState({name: name})}
-          />
-          <TextInput
-            style={styles.textinput}
-            placeholder="Enter your email"
-            autoCapitalize="none"
-            autoCorrect={false}
-            onChangeText={(email) => this.setState({email: email})}
-          />
-          <TextInput
-            style={styles.textinput}
-            placeholder="Phone Number"
-            textContentType={'oneTimeCode'}
-            onChangeText={(phonenumber) =>
-              this.setState({phonenumber: phonenumber})
-            }
-          />
-          <TextInput
-            style={styles.textinput}
-            placeholder="Dat of birth"
-            textContentType={'oneTimeCode'}
-            onChangeText={(datOfBirth) =>
-              this.setState({datOfBirth: datOfBirth})
-            }
-          />
-          <TextInput
-            style={styles.textinput}
-            placeholder="Password"
-            textContentType={'oneTimeCode'}
-            secureTextEntry
-            onChangeText={(password) => this.setState({password: password})}
-          />
-          <TextInput
-            style={styles.textinput}
-            placeholder="Confirm password"
-            textContentType={'oneTimeCode'}
-            secureTextEntry
-            onChangeText={(confirmpassword) =>
-              this.setState({confirmpassword: confirmpassword})
-            }
-          />
-          <View style={{alignItems: 'center'}}>
-            <View style={styles.btncontainer}>
-              <Button title="Sign Up" onPress={this.onSignUp} />
-            </View>
+          <View>
+            <TextInput
+              style={styles.EmailPhoneNumberInput}
+              placeholder="Enter your email"
+              autoCapitalize="none"
+              autoCorrect={false}
+              onChangeText={(email) => this.setState({email: email})}
+            />
+            <TextInput
+              style={styles.EmailPhoneNumberInput}
+              placeholder="Phone Number"
+              textContentType={'oneTimeCode'}
+              onChangeText={(phonenumber) =>
+                this.setState({phonenumber: phonenumber})
+              }
+            />
           </View>
+          <View style={styles.DateOfBirthWrapper}>
+            <TextInput
+              style={styles.DateOfBirthInput}
+              placeholder="Day"
+              textContentType={'oneTimeCode'}
+              onChangeText={(day) => this.setState({day: day})}
+            />
+            <TextInput
+              style={styles.DateOfBirthInput}
+              placeholder="Month"
+              textContentType={'oneTimeCode'}
+              onChangeText={(month) => this.setState({month: month})}
+            />
+            <TextInput
+              style={styles.DateOfBirthInput}
+              placeholder="Year"
+              textContentType={'oneTimeCode'}
+              onChangeText={(year) => this.setState({year: year})}
+            />
+          </View>
+          <View style={styles.PasswordWrapper}>
+            <TextInput
+              style={styles.PasswordInput}
+              placeholder="Password"
+              textContentType={'oneTimeCode'}
+              secureTextEntry
+              onChangeText={(password) => this.setState({password})}
+            />
+            <TextInput
+              style={styles.PasswordInput}
+              placeholder="Confirm password"
+              textContentType={'oneTimeCode'}
+              secureTextEntry
+              onChangeText={(confirmPassword) =>
+                this.setState({confirmPassword})
+              }
+            />
+          </View>
+        </View>
+
+        <View style={styles.SignUpWrapper}>
+          <TouchableOpacity
+          activeOpacity={0.5}
+            style={styles.SignUpButton}
+            disabled={this.validation()}
+            onPress={this.onSignUp}>
+            <Text style={styles.ButtonText}>Sign Up</Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -165,38 +238,84 @@ class Signup extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  Container: {
     flex: 1,
   },
-  subcontainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 40,
-    marginHorizontal: 10,
-  },
-  textinput: {
-    marginTop: 15,
-    lineHeight: 25,
-    width: 395,
-    padding: 12,
-    backgroundColor: 'white',
+  Textinput: {
     fontSize: 18,
     borderRadius: 5,
+    paddingVertical: 10,
+    backgroundColor: 'white',
   },
-  btncontainer: {
-    marginTop: 15,
-    width: 220,
-    borderRadius: 10,
-    backgroundColor: '#ffd54f',
-    padding: 2,
-  },
-  imageWrapper: {
-    marginBottom: 20,
+  ImageWrapper: {
+    marginVertical: 20,
+    alignItems: 'center',
   },
   styleImage: {
     width: 120,
     height: 120,
     borderRadius: 60,
+  },
+  InformationWrapper: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  FullNameWrapper: {
+    marginVertical: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  FullNameInput: {
+    fontSize: 15,
+    paddingLeft: 10,
+    borderRadius: 7,
+    paddingVertical: 15,
+    backgroundColor: 'white',
+    width: screenWidth / 2 - 25,
+  },
+  EmailPhoneNumberInput: {
+    fontSize: 15,
+    paddingLeft: 10,
+    marginBottom: 10,
+    borderRadius: 7,
+    paddingVertical: 15,
+    backgroundColor: 'white',
+  },
+  DateOfBirthWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  DateOfBirthInput: {
+    borderRadius: 7,
+    paddingLeft: 10,
+    marginBottom: 10,
+    paddingVertical: 15,
+    backgroundColor: 'white',
+    width: screenWidth / 2 - 90,
+  },
+  PasswordWrapper: {},
+  PasswordInput: {
+    fontSize: 15,
+    paddingLeft: 10,
+    marginBottom: 10,
+    borderRadius: 7,
+    paddingVertical: 15,
+    backgroundColor: 'white',
+  },
+  SignUpWrapper: {
+    alignItems: 'center',
+  },
+  SignUpButton: {
+    borderRadius: 7,
+    marginBottom: 120,
+    paddingVertical: 15,
+    alignItems: 'center',
+    width: screenWidth - 32,
+    backgroundColor: '#ffd54f',
+  },
+  ButtonText: {
+    fontSize: 15,
+    color: 'black',
   },
 });
 

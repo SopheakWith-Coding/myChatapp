@@ -8,7 +8,7 @@ import auth from '@react-native-firebase/auth';
 
 import LoginScreen from './src/screen/login';
 import SignUpScreen from './src/screen/signup';
-import Dashboard from './src/screen/dashboard';
+import ChatRoom from './src/screen/chatRoom';
 
 import ChatScreen from './src/screen/chat';
 import ProfileScreen from './src/screen/profile';
@@ -37,7 +37,11 @@ export default class Navigation extends React.PureComponent {
             component={ChatScreen}
             options={{title: 'Chat'}}
           />
-          <Stack.Screen name="Dashboard" component={Dashboard} />
+          <Stack.Screen
+            name="ChatRoom"
+            component={ChatRoom}
+            options={({route}) => ({title: route.params.title})}
+          />
         </Stack.Navigator>
       );
     }
@@ -93,8 +97,8 @@ export default class Navigation extends React.PureComponent {
           </Tab.Navigator>
         ) : (
           <Stack.Navigator>
-            <Stack.Screen name="LoginScreen" component={LoginScreen} />
-            <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
+            <Stack.Screen name="Log In" component={LoginScreen} />
+            <Stack.Screen name="Sign Up" component={SignUpScreen} />
           </Stack.Navigator>
         )}
       </NavigationContainer>
