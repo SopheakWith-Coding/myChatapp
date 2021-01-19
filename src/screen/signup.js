@@ -225,7 +225,7 @@ class Signup extends React.Component {
 
         <View style={styles.SignUpWrapper}>
           <TouchableOpacity
-          activeOpacity={0.5}
+            activeOpacity={0.5}
             style={styles.SignUpButton}
             disabled={this.validation()}
             onPress={this.onSignUp}>
@@ -240,12 +240,6 @@ class Signup extends React.Component {
 const styles = StyleSheet.create({
   Container: {
     flex: 1,
-  },
-  Textinput: {
-    fontSize: 18,
-    borderRadius: 5,
-    paddingVertical: 10,
-    backgroundColor: 'white',
   },
   ImageWrapper: {
     marginVertical: 20,

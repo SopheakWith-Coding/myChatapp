@@ -31,9 +31,11 @@ export default class Chat extends React.Component {
   }
 
   findLatestMessage = async () => {
-    const finedLastMessage = database().ref('chats');
-    const receivemassage = await finedLastMessage.once('value');
-    console.log(receivemassage.val());
+    const finedLastMessage = database()
+      .ref('chats')
+      .orderByChild('text')
+      .limitToLast(1)
+      .once('value', (snapshot) => snapshot.Text);
   };
 
   render() {
@@ -64,7 +66,7 @@ export default class Chat extends React.Component {
                   title: `${user.firstName} ${user.lastName}`,
                 })
               }>
-              <View style={styles.subcontainer}>
+              <View style={styles.SubContainer}>
                 <View style={styles.imageWrapper}>
                   <Image
                     style={{width: 60, height: 60, borderRadius: 50}}
@@ -73,10 +75,10 @@ export default class Chat extends React.Component {
                 </View>
 
                 <View style={styles.TextWrapper}>
-                  <Text style={styles.texttitle}>
+                  <Text style={styles.TextTitle}>
                     {user.firstName} {user.lastName}
                   </Text>
-                  <Text style={styles.textsubtitle}>Helo how are you?</Text>
+                  <Text style={styles.TextSubTitle}>Helo how are you?</Text>
                 </View>
 
                 <View style={styles.TimeWrapper}>
@@ -97,7 +99,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
   },
-  subcontainer: {
+  SubContainer: {
     height: 80,
     width: screenWidth,
     flexDirection: 'row',
@@ -116,10 +118,10 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     marginRight: 20,
   },
-  texttitle: {
+  TextTitle: {
     fontSize: 25,
   },
-  textsubtitle: {
+  TextSubTitle: {
     fontSize: 20,
   },
 });

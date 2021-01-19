@@ -50,28 +50,28 @@ class Login extends React.Component {
           />
           <Text style={styles.textTitle}>SIGN IN</Text>
         </View>
-        <View style={styles.subcontainer}>
+        <View style={styles.SubContainer}>
           <TextInput
-            style={styles.textinput}
+            style={styles.TextInput}
             placeholder="Enter your email"
             autoCapitalize="none"
             autoCorrect={false}
             onChangeText={(email) => this.setState({email: email})}
           />
           <TextInput
-            style={styles.textinput}
+            style={styles.TextInput}
             placeholder="Password"
             secureTextEntry
             onChangeText={(password) => this.setState({password: password})}
           />
-          <View style={styles.btncontainer}>
+          <View style={styles.BtnContainer}>
             <Button
               title="Log In"
               disabled={email.length === 0 || password.length === 0}
               onPress={this.onLogin}
             />
           </View>
-          <View style={styles.btncontainer}>
+          <View style={styles.BtnContainer}>
             <Button
               title="Create an Account"
               onPress={() => navigation.navigate('Sign Up')}
@@ -96,11 +96,11 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
   },
-  subcontainer: {
+  SubContainer: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  textinput: {
+  TextInput: {
     marginTop: 15,
     lineHeight: 25,
     width: screenWidth - 40,
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     borderRadius: 5,
   },
-  btncontainer: {
+  BtnContainer: {
     marginTop: 15,
     width: screenWidth - 40,
     borderRadius: 10,
