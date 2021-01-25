@@ -2,14 +2,15 @@ import React from 'react';
 import {
   StyleSheet,
   View,
-  Button,
   TextInput,
   Dimensions,
   Image,
   Text,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableOpacity,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
-
 const screenWidth = Dimensions.get('screen').width;
 class Login extends React.Component {
   constructor(props) {
@@ -17,6 +18,7 @@ class Login extends React.Component {
     this.state = {
       email: '',
       password: '',
+      isTrue: false,
     };
   }
 
@@ -35,22 +37,26 @@ class Login extends React.Component {
   };
 
   render() {
+    const {button} = this.state;
+
     const {email, password} = this.state;
     const {navigation} = this.props;
 
     return (
-      <View style={styles.container}>
-        <View style={styles.ImageWrapper}>
-          <Image
-            style={{width: 120, height: 120, borderRadius: 60}}
-            source={{
-              uri:
-                'https://image.freepik.com/free-vector/colorful-logo-chat_1017-1721.jpg',
-            }}
-          />
-          <Text style={styles.textTitle}>SIGN IN</Text>
-        </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}>
         <View style={styles.SubContainer}>
+          <View style={styles.ImageWrapper}>
+            <Image
+              style={{width: 120, height: 120, borderRadius: 60}}
+              source={{
+                uri:
+                  'https://image.freepik.com/free-vector/colorful-logo-chat_1017-1721.jpg',
+              }}
+            />
+            <Text style={styles.textTitle}>SIGN IN</Text>
+          </View>
           <TextInput
             style={styles.TextInput}
             placeholder="Enter your email"
@@ -64,21 +70,27 @@ class Login extends React.Component {
             secureTextEntry
             onChangeText={(password) => this.setState({password: password})}
           />
-          <View style={styles.BtnContainer}>
-            <Button
-              title="Log In"
-              disabled={email.length === 0 || password.length === 0}
-              onPress={this.onLogin}
-            />
-          </View>
-          <View style={styles.BtnContainer}>
-            <Button
-              title="Create an Account"
-              onPress={() => navigation.navigate('Sign Up')}
-            />
+          <View style={styles.ViewButtonWrapper}>
+            <View style={styles.ButtonWrapper}>
+              <TouchableOpacity
+                activeOpacity={0.5}
+                style={styles.ButtonTouchableOpacity}
+                disabled={email.length === 0 || password.length === 0}
+                onPress={this.onLogin}>
+                <Text style={styles.ButtonText}>Log In</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.ButtonTouchableOpacity}>
+              <TouchableOpacity
+                activeOpacity={0.5}
+                style={styles.SignUpButton}
+                onPress={() => navigation.navigate('Sign Up')}>
+                <Text style={styles.ButtonText}>Create an Account</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     );
   }
 }
@@ -86,9 +98,10 @@ class Login extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'space-around',
   },
   ImageWrapper: {
-    marginVertical: 40,
+    marginBottom: 80,
     alignItems: 'center',
   },
   textTitle: {
@@ -97,24 +110,35 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   SubContainer: {
+    paddingVertical: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
   TextInput: {
     marginTop: 15,
     lineHeight: 25,
-    width: screenWidth - 40,
+    width: screenWidth - 32,
     padding: 12,
     backgroundColor: 'white',
     fontSize: 18,
     borderRadius: 5,
   },
-  BtnContainer: {
-    marginTop: 15,
-    width: screenWidth - 40,
+  ViewButtonWrapper: {
+    alignItems: 'center',
+    marginTop: 40,
+  },
+  ButtonWrapper: {
+    marginVertical: 15,
+  },
+  ButtonTouchableOpacity: {
     borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: 'center',
+    width: screenWidth - 32,
     backgroundColor: '#ffd54f',
-    padding: 2,
+  },
+  ButtonText: {
+    fontSize: 15,
   },
 });
 export default Login;

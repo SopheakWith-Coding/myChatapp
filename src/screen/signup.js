@@ -7,6 +7,7 @@ import {
   Platform,
   Dimensions,
   Text,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {TextInput} from 'react-native-gesture-handler';
 import auth from '@react-native-firebase/auth';
@@ -140,20 +141,21 @@ class Signup extends React.Component {
     const imagePath = profileImage ? profileImage : placeholderImage;
 
     return (
-      <View style={styles.Container}>
-        <View style={styles.ImageWrapper}>
-          <TouchableOpacity
-            activeOpacity={0.5}
-            onPress={() => this.handleChoosePhoto()}>
-            <Image style={styles.styleImage} source={{uri: imagePath}} />
-          </TouchableOpacity>
-        </View>
-
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.Container}>
         <View style={styles.InformationWrapper}>
+          <View style={styles.ImageWrapper}>
+            <TouchableOpacity
+              activeOpacity={0.5}
+              onPress={() => this.handleChoosePhoto()}>
+              <Image style={styles.styleImage} source={{uri: imagePath}} />
+            </TouchableOpacity>
+          </View>
           <View style={styles.FullNameWrapper}>
             <TextInput
               style={styles.FullNameInput}
-              placeholder="Enter first name"
+              placeholder="Enter first  name"
               autoCorrect={false}
               onChangeText={(firstName) =>
                 this.setState({firstName: firstName})
@@ -221,18 +223,16 @@ class Signup extends React.Component {
               }
             />
           </View>
+          <View style={styles.SignUpWrapper}>
+            <TouchableOpacity
+              activeOpacity={0.5}
+              style={styles.SignUpButton}
+              onPress={this.onSignUp}>
+              <Text style={styles.ButtonText}>Sign Up</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-
-        <View style={styles.SignUpWrapper}>
-          <TouchableOpacity
-            activeOpacity={0.5}
-            style={styles.SignUpButton}
-            disabled={this.validation()}
-            onPress={this.onSignUp}>
-            <Text style={styles.ButtonText}>Sign Up</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      </KeyboardAvoidingView>
     );
   }
 }
@@ -240,6 +240,7 @@ class Signup extends React.Component {
 const styles = StyleSheet.create({
   Container: {
     flex: 1,
+    justifyContent: 'space-around',
   },
   ImageWrapper: {
     marginVertical: 20,
@@ -251,7 +252,6 @@ const styles = StyleSheet.create({
     borderRadius: 60,
   },
   InformationWrapper: {
-    flex: 1,
     paddingHorizontal: 16,
   },
   FullNameWrapper: {
@@ -298,9 +298,10 @@ const styles = StyleSheet.create({
   },
   SignUpWrapper: {
     alignItems: 'center',
+    marginTop: 40,
   },
   SignUpButton: {
-    borderRadius: 7,
+    borderRadius: 10,
     marginBottom: 120,
     paddingVertical: 15,
     alignItems: 'center',
