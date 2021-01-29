@@ -26,6 +26,8 @@ export default class CreateChat extends React.Component {
     const data = await dbRef.once('value');
     this.setState({users: Object.values(data.val())});
   }
+   
+  
 
   render() {
     const {users} = this.state;
