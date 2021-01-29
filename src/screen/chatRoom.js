@@ -20,11 +20,11 @@ class ChatRoom extends React.Component {
   }
 
   get = async (callback) => {
-    const {user} = this.props.route.params;
+    const {item} = this.props.route.params;
     const senderRef = database()
       .ref('chats')
       .orderByChild('sender')
-      .equalTo(user.uuid);
+      .equalTo(item.uuid);
     const senderSnapshot = await senderRef.once('value');
     if (senderSnapshot.val()) {
       senderRef.on('child_added', (snapshot) => callback(this.parse(snapshot)));
@@ -33,7 +33,7 @@ class ChatRoom extends React.Component {
     const receiverRef = database()
       .ref('chats')
       .orderByChild('receiver')
-      .equalTo(user.uuid);
+      .equalTo(item.uuid);
     const receiverSnapshot = await receiverRef.once('value');
     if (receiverSnapshot.val()) {
       receiverRef.on('child_added', (snapshot) =>
@@ -43,15 +43,15 @@ class ChatRoom extends React.Component {
   };
 
   send = (messages) => {
-    const {user} = this.props.route.params;
+    const {item} = this.props.route.params;
     const authUid = auth().currentUser.uid;
 
-    messages.forEach((item) => {
+    messages.forEach((value) => {
       const message = {
-        text: item.text,
+        text: value.text,
         timestamp: database.ServerValue.TIMESTAMP,
-        user: item.user,
-        receiver: user.uuid,
+        user: value.user,
+        receiver: item.uuid,
         sender: authUid,
       };
 

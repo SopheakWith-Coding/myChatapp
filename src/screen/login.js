@@ -18,7 +18,6 @@ class Login extends React.Component {
     this.state = {
       email: '',
       password: '',
-      isTrue: false,
     };
   }
 
@@ -37,8 +36,6 @@ class Login extends React.Component {
   };
 
   render() {
-    const {button} = this.state;
-
     const {email, password} = this.state;
     const {navigation} = this.props;
 

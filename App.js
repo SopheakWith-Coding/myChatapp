@@ -1,5 +1,5 @@
 import React from 'react';
-import {Image} from 'react-native';
+import {TouchableOpacity, Image} from 'react-native';
 import 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -9,6 +9,7 @@ import auth from '@react-native-firebase/auth';
 import LoginScreen from './src/screen/login';
 import SignUpScreen from './src/screen/signup';
 import ChatRoom from './src/screen/chatRoom';
+import createChatScreen from './src/screen/createChat';
 
 import ChatScreen from './src/screen/chat';
 import ProfileScreen from './src/screen/profile';
@@ -33,15 +34,28 @@ export default class Navigation extends React.PureComponent {
       return (
         <Stack.Navigator>
           <Stack.Screen
-            name="Chat"
+            name="Chats"
             component={ChatScreen}
-            options={{title: 'Chat'}}
+            options={({navigation}) => ({
+              headerRight: () => (
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Create Chat')}>
+                  <Image
+                    style={{width: 22, height: 22, marginRight: 15}}
+                    source={{
+                      uri: 'https://cdn.onlinewebfonts.com/svg/img_402168.png',
+                    }}
+                  />
+                </TouchableOpacity>
+              ),
+            })}
           />
           <Stack.Screen
             name="ChatRoom"
             component={ChatRoom}
             options={({route}) => ({title: route.params.title})}
           />
+          <Stack.Screen name="Create Chat" component={createChatScreen} />
         </Stack.Navigator>
       );
     }

@@ -84,10 +84,10 @@ export default class Profile extends React.Component {
         <View style={styles.informationContainer}>
           <View style={styles.imageView}>
             <Image
-              style={{width: 30, height: 30}}
+              style={{width: 25, height: 25}}
               source={{
                 uri:
-                  'https://icon-library.com/images/username-icon-png/username-icon-png-4.jpg',
+                  'https://upload.wikimedia.org/wikipedia/commons/7/70/User_icon_BLACK-01.png',
               }}
             />
           </View>
@@ -101,7 +101,7 @@ export default class Profile extends React.Component {
         <View style={styles.informationContainer}>
           <View style={styles.imageView}>
             <Image
-              style={{width: 30, height: 30}}
+              style={{width: 22, height: 22}}
               source={{
                 uri:
                   'https://www.clipartmax.com/png/middle/139-1399436_calendar-icons-facebook-date-of-birth-icon.png',
@@ -118,7 +118,7 @@ export default class Profile extends React.Component {
         <View style={styles.informationContainer}>
           <View style={styles.imageView}>
             <Image
-              style={{width: 30, height: 30}}
+              style={{width: 22, height: 25}}
               source={{
                 uri:
                   'https://cdn2.iconfinder.com/data/icons/font-awesome/1792/phone-512.png',
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     height: 250,
-    backgroundColor: 'red',
+    backgroundColor: '#ffd54f',
   },
   imageWrapper: {
     marginBottom: 15,
