@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   ImageWrapper: {
-    marginBottom: 80,
+    marginBottom: 40,
     alignItems: 'center',
   },
   textTitle: {

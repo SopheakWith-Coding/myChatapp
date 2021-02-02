@@ -34,6 +34,7 @@ export default class Profile extends React.Component {
   Loutout = () => {
     auth().signOut();
   };
+
   handleChoosePhoto = async () => {
     ImagePicker.openPicker({
       width: 400,
@@ -55,9 +56,9 @@ export default class Profile extends React.Component {
         .then(() => this.setState({profileImage: url}));
     });
   };
+
   render() {
     const {users} = this.state;
-
     const image = users.profileImage
       ? {uri: users.profileImage}
       : {

@@ -1,6 +1,6 @@
 import React from 'react';
 import {GiftedChat} from 'react-native-gifted-chat';
-import database from '@react-native-firebase/database';
+import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
 class ChatRoom extends React.Component {
@@ -12,63 +12,65 @@ class ChatRoom extends React.Component {
   }
 
   componentDidMount() {
-    this.get((message) => {
-      this.setState((previousState) => ({
-        messages: GiftedChat.append(previousState.messages, message),
-      }));
-    });
-  }
-
-  get = async (callback) => {
     const {item} = this.props.route.params;
-    const senderRef = database()
-      .ref('chats')
-      .orderByChild('sender')
-      .equalTo(item.uuid);
-    const senderSnapshot = await senderRef.once('value');
-    if (senderSnapshot.val()) {
-      senderRef.on('child_added', (snapshot) => callback(this.parse(snapshot)));
-    }
-
-    const receiverRef = database()
-      .ref('chats')
-      .orderByChild('receiver')
-      .equalTo(item.uuid);
-    const receiverSnapshot = await receiverRef.once('value');
-    if (receiverSnapshot.val()) {
-      receiverRef.on('child_added', (snapshot) =>
-        callback(this.parse(snapshot)),
-      );
-    }
-  };
+    firestore()
+      .collection('Chats')
+      .doc(item._id)
+      .collection('MESSAGES')
+      .orderBy('createdAt', 'desc')
+      .onSnapshot((querySnapshot) => {
+        const messages = querySnapshot.docs.map((doc) => {
+          const firebaseData = doc.data();
+          const data = {
+            _id: doc.id,
+            text: '',
+            createdAt: new Date().getTime(),
+            ...firebaseData,
+          };
+          if (!firebaseData.system) {
+            data.user = {
+              ...firebaseData.user,
+              name: firebaseData.user.displayName,
+            };
+          }
+          return data;
+        });
+        this.setState({messages: messages});
+      });
+  }
 
   send = (messages) => {
     const {item} = this.props.route.params;
     const authUid = auth().currentUser.uid;
-
-    messages.forEach((value) => {
-      const message = {
-        text: value.text,
-        timestamp: database.ServerValue.TIMESTAMP,
-        user: value.user,
-        receiver: item.uuid,
+    const text = messages[0].text;
+    firestore()
+      .collection('Chats')
+      .doc(item._id)
+      .collection('MESSAGES')
+      .add({
+        text,
+        createdAt: new Date().getTime(),
+        user: {
+          _id: authUid,
+          displayName: item.name,
+        },
+      });
+    const image = item.profileImage
+      ? `${item.profileImage}`
+      : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
+    firestore()
+      .collection('Chats')
+      .doc(item._id)
+      .update({
         sender: authUid,
-      };
-
-      database().ref('chats').push(message);
-    });
-  };
-
-  parse = (message) => {
-    const {user, text, timestamp} = message.val();
-    const {key: _id} = message;
-    const createdAt = new Date(timestamp);
-    return {
-      _id,
-      createdAt,
-      text,
-      user,
-    };
+        receiver: item.uuid,
+        name: `${item.name}`,
+        profileImage: image,
+        latestMessage: {
+          text: text,
+          createdAt: new Date().getTime(),
+        },
+      });
   };
 
   render() {

@@ -7,10 +7,10 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
-import database from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
 import moment from 'moment';
 import {FlatList} from 'react-native-gesture-handler';
+import firestore from '@react-native-firebase/firestore';
 
 const screenWidth = Dimensions.get('screen').width;
 
@@ -28,23 +28,24 @@ export default class Chat extends React.Component {
   }
 
   async componentDidMount() {
-    this.findLatestMessage();
-    const dbRef = database().ref('users');
-    const data = await dbRef.once('value');
-    this.setState({users: Object.values(data.val())});
+    firestore()
+      .collection('Chats')
+      .orderBy('latestMessage.createdAt', 'desc')
+      .onSnapshot((querySnapshot) => {
+        const threads = querySnapshot.docs.map((documentSnapshot) => {
+          return {
+            _id: documentSnapshot.id,
+            name: '',
+            profileImage: '',
+            latestMessage: {text: ''},
+            ...documentSnapshot.data(),
+          };
+        });
+        this.setState({users: threads});
+      });
   }
 
-  findLatestMessage = async () => {
-    const LastMessage = database()
-      .ref('chats')
-      .orderByChild('timestamp')
-      .limitToLast(1);
-    const findMessage = await LastMessage.once('value');
-    this.setState({messages: Object.values(findMessage.val())});
-  };
-
   render() {
-    const {messages} = this.state;
     const {users} = this.state;
     const {navigation} = this.props;
     const {uid} = auth().currentUser;
@@ -68,7 +69,7 @@ export default class Chat extends React.Component {
                 onPress={() =>
                   navigation.navigate('ChatRoom', {
                     item,
-                    title: `${item.firstName} ${item.lastName}`,
+                    title: `${item.name}`,
                   })
                 }>
                 <View style={styles.SubContainer}>
@@ -80,21 +81,15 @@ export default class Chat extends React.Component {
                   </View>
 
                   <View style={styles.TextWrapper}>
-                    <Text style={styles.TextTitle}>
-                      {item.firstName} {item.lastName}
+                    <Text style={styles.TextTitle}>{item.name}</Text>
+                    <Text style={styles.TextSubTitle}>
+                      {item.latestMessage.text.slice(0, 90)}
                     </Text>
-                    {messages.map((val) => {
-                      return (
-                        <Text style={styles.TextSubTitle}>{val.text}</Text>
-                      );
-                    })}
                   </View>
                   <View style={styles.TimeWrapper}>
-                    {messages.map((val) => {
-                      return (
-                        <Text>{moment(val.timestamp).format('hh:mm A')}</Text>
-                      );
-                    })}
+                    <Text>
+                      {moment(item.latestMessage.createdAt).format('hh:mm A')}
+                    </Text>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -111,33 +106,29 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'green',
   },
   SubContainer: {
     height: 80,
     width: screenWidth,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: 'gray',
+    backgroundColor: 'white',
   },
   imageWrapper: {
     marginVertical: 1,
     marginLeft: 15,
     justifyContent: 'center',
-    backgroundColor: 'red',
   },
   TextWrapper: {
     marginVertical: 1,
     justifyContent: 'center',
     width: screenWidth - 160,
-    backgroundColor: 'yellow',
   },
   TimeWrapper: {
     marginVertical: 1,
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     marginRight: 15,
     width: screenWidth - 350,
-    backgroundColor: 'brown',
   },
   TextTitle: {
     fontSize: 18,

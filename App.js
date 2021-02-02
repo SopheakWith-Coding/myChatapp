@@ -10,6 +10,7 @@ import LoginScreen from './src/screen/login';
 import SignUpScreen from './src/screen/signup';
 import ChatRoom from './src/screen/chatRoom';
 import createChatScreen from './src/screen/createChat';
+import database from '@react-native-firebase/database';
 
 import ChatScreen from './src/screen/chat';
 import ProfileScreen from './src/screen/profile';
@@ -22,13 +23,25 @@ export default class Navigation extends React.PureComponent {
   state = {
     initializing: true,
     user: null,
+    users: [],
   };
-  componentDidMount() {
+  async componentDidMount() {
     auth().onAuthStateChanged((user) => this.setState({user}));
+    const authUid = auth().currentUser.uid;
+    const ref = database().ref(`users/${authUid}`);
+    const data = await ref.once('value');
+    this.setState({users: data.val()});
   }
 
   render() {
     const {user} = this.state;
+    const {users} = this.state;
+    const image = users.profileImage
+      ? {uri: users.profileImage}
+      : {
+          uri:
+            'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=',
+        };
 
     function chatStack() {
       return (
@@ -48,6 +61,20 @@ export default class Navigation extends React.PureComponent {
                   />
                 </TouchableOpacity>
               ),
+              headerLeft: () => (
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('ProFile')}>
+                  <Image
+                    style={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: 30,
+                      marginLeft: 15,
+                    }}
+                    source={image}
+                  />
+                </TouchableOpacity>
+              ),
             })}
           />
           <Stack.Screen
@@ -64,7 +91,7 @@ export default class Navigation extends React.PureComponent {
       return (
         <Stack.Navigator>
           <Stack.Screen
-            name="Profile"
+            name="ProFile"
             component={ProfileScreen}
             options={{title: 'Profile'}}
           />
