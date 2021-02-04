@@ -58,6 +58,7 @@ export default class Chat extends React.Component {
           data={filterUser}
           keyExtractor={(item) => item._id}
           renderItem={({item}) => {
+            const chats = item;
             const image = item.profileImage
               ? {uri: item.profileImage}
               : {
@@ -68,7 +69,7 @@ export default class Chat extends React.Component {
               <TouchableOpacity
                 onPress={() =>
                   navigation.navigate('ChatRoom', {
-                    item,
+                    chats,
                     title: `${item.name}`,
                   })
                 }>

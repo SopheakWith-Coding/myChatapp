@@ -22,15 +22,20 @@ export default class CreateChat extends React.Component {
     };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
+    this.setRemoteUsers();
+  }
+
+  setRemoteUsers = async () => {
     const dbRef = database().ref('users');
     const data = await dbRef.once('value');
+
     this.setState({users: Object.values(data.val())});
-  }
+  };
 
   goToChat = (data) => {
     const {navigation} = this.props;
-    navigation.navigate('Chats', data);
+    navigation.navigate('ChatRoom', data);
   };
 
   CreateChatRoom = async (item) => {
@@ -38,14 +43,15 @@ export default class CreateChat extends React.Component {
     const image = item.profileImage
       ? `${item.profileImage}`
       : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
-    const dbRef = firestore().collection('Chats');
+
     const userName = `${item.firstName} ${item.lastName}`;
     const welcomeMessage = {
       text: `${userName} created Welcome!`,
       createdAt: new Date().getTime(),
     };
 
-    const result = await dbRef.where('name', '==', userName).get();
+    const dbRef = firestore().collection('Chats');
+    const result = await dbRef.where('name', '==', userName).limit(1).get();
     if (result.empty) {
       dbRef
         .add({
@@ -60,16 +66,29 @@ export default class CreateChat extends React.Component {
             ...welcomeMessage,
             system: true,
           });
-          this.goToChat({
-            item,
-            title: userName,
-          });
         });
     } else {
-      this.goToChat({
-        item,
-        title: userName,
-      });
+      dbRef
+        .where('name', '==', userName)
+        // .orderBy('latestMessage.createdAt', 'desc')
+        .onSnapshot((querySnapshot) => {
+          console.log(querySnapshot);
+          const msg = querySnapshot.docs.map((documentSnapshot) => {
+            return {
+              _id: documentSnapshot.id,
+              name: '',
+              profileImage: '',
+              latestMessage: {text: ''},
+              ...documentSnapshot.data(),
+            };
+          });
+          msg.map((chats) => {
+            this.goToChat({
+              chats,
+              title: userName,
+            });
+          });
+        });
     }
   };
 
@@ -77,7 +96,6 @@ export default class CreateChat extends React.Component {
     const {users} = this.state;
     const {uid} = auth().currentUser;
     const filterUser = users.filter((val) => val.uuid !== uid);
-
     return (
       <View style={styles.container}>
         <FlatList

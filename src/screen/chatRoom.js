@@ -12,10 +12,10 @@ class ChatRoom extends React.Component {
   }
 
   componentDidMount() {
-    const {item} = this.props.route.params;
+    const {chats} = this.props.route.params;
     firestore()
       .collection('Chats')
-      .doc(item._id)
+      .doc(chats._id)
       .collection('MESSAGES')
       .orderBy('createdAt', 'desc')
       .onSnapshot((querySnapshot) => {
@@ -40,31 +40,31 @@ class ChatRoom extends React.Component {
   }
 
   send = (messages) => {
-    const {item} = this.props.route.params;
+    const {chats} = this.props.route.params;
     const authUid = auth().currentUser.uid;
     const text = messages[0].text;
+
     firestore()
       .collection('Chats')
-      .doc(item._id)
+      .doc(chats._id)
       .collection('MESSAGES')
       .add({
         text,
         createdAt: new Date().getTime(),
         user: {
           _id: authUid,
-          displayName: item.name,
         },
       });
-    const image = item.profileImage
-      ? `${item.profileImage}`
+    const image = chats.profileImage
+      ? `${chats.profileImage}`
       : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
     firestore()
       .collection('Chats')
-      .doc(item._id)
+      .doc(chats._id)
       .update({
         sender: authUid,
-        receiver: item.uuid,
-        name: `${item.name}`,
+        receiver: chats.uuid,
+        name: `${chats.name}`,
         profileImage: image,
         latestMessage: {
           text: text,
@@ -77,13 +77,13 @@ class ChatRoom extends React.Component {
     const authUid = auth().currentUser.uid;
     const {messages} = this.state;
 
-    const descendingOrder = messages.sort((receiver, sender) => {
-      return sender.createdAt - receiver.createdAt;
-    });
+    // const descendingOrder = messages.sort((receiver, sender) => {
+    //   return sender.createdAt - receiver.createdAt;
+    // });
 
     return (
       <GiftedChat
-        messages={descendingOrder}
+        messages={messages}
         onSend={this.send}
         user={{
           _id: authUid,
