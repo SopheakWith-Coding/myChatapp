@@ -12,6 +12,7 @@ class ChatRoom extends React.Component {
   }
 
   componentDidMount() {
+    this.header();
     const {chats} = this.props.route.params;
     firestore()
       .collection('Chats')
@@ -39,10 +40,22 @@ class ChatRoom extends React.Component {
       });
   }
 
+  header = () => {
+    const {navigation} = this.props;
+    navigation.setOptions({
+      headerBackTitleVisible: false,
+      headerTitleAlign: 'left',
+    });
+  };
+
   send = (messages) => {
+    const {receiverId} = this.props.route.params;
     const {chats} = this.props.route.params;
     const authUid = auth().currentUser.uid;
     const text = messages[0].text;
+    const image = chats.profileImage
+      ? `${chats.profileImage}`
+      : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
 
     firestore()
       .collection('Chats')
@@ -55,15 +68,12 @@ class ChatRoom extends React.Component {
           _id: authUid,
         },
       });
-    const image = chats.profileImage
-      ? `${chats.profileImage}`
-      : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
     firestore()
       .collection('Chats')
       .doc(chats._id)
       .update({
         sender: authUid,
-        receiver: chats.uuid,
+        receiver: receiverId,
         name: `${chats.name}`,
         profileImage: image,
         latestMessage: {
@@ -76,11 +86,6 @@ class ChatRoom extends React.Component {
   render() {
     const authUid = auth().currentUser.uid;
     const {messages} = this.state;
-
-    // const descendingOrder = messages.sort((receiver, sender) => {
-    //   return sender.createdAt - receiver.createdAt;
-    // });
-
     return (
       <GiftedChat
         messages={messages}

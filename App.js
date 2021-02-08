@@ -5,6 +5,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import auth from '@react-native-firebase/auth';
+import {HeaderBackButton} from '@react-navigation/stack';
 
 import LoginScreen from './src/screen/login';
 import SignUpScreen from './src/screen/signup';
@@ -80,7 +81,15 @@ export default class Navigation extends React.PureComponent {
           <Stack.Screen
             name="ChatRoom"
             component={ChatRoom}
-            options={({route}) => ({title: route.params.title})}
+            options={({navigation, route}) => ({
+              title: route.params.title,
+              headerLeft: (props) => (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => navigation.navigate('Chats')}
+                />
+              ),
+            })}
           />
           <Stack.Screen name="Create Chat" component={createChatScreen} />
         </Stack.Navigator>

@@ -29,7 +29,6 @@ export default class CreateChat extends React.Component {
   setRemoteUsers = async () => {
     const dbRef = database().ref('users');
     const data = await dbRef.once('value');
-
     this.setState({users: Object.values(data.val())});
   };
 
@@ -39,6 +38,7 @@ export default class CreateChat extends React.Component {
   };
 
   CreateChatRoom = async (item) => {
+    const receiverId = item.uuid;
     const authUid = auth().currentUser.uid;
     const image = item.profileImage
       ? `${item.profileImage}`
@@ -51,12 +51,15 @@ export default class CreateChat extends React.Component {
     };
 
     const dbRef = firestore().collection('Chats');
-    const result = await dbRef.where('name', '==', userName).limit(1).get();
+    const result = await dbRef
+      .where('receiver', '==', receiverId || 'sender', '==', authUid)
+      .limit(1)
+      .get();
     if (result.empty) {
       dbRef
         .add({
           sender: authUid,
-          receiver: item.uuid,
+          receiver: receiverId,
           name: userName,
           profileImage: image,
           latestMessage: welcomeMessage,
@@ -68,27 +71,24 @@ export default class CreateChat extends React.Component {
           });
         });
     } else {
-      dbRef
-        .where('name', '==', userName)
-        // .orderBy('latestMessage.createdAt', 'desc')
-        .onSnapshot((querySnapshot) => {
-          console.log(querySnapshot);
-          const msg = querySnapshot.docs.map((documentSnapshot) => {
-            return {
-              _id: documentSnapshot.id,
-              name: '',
-              profileImage: '',
-              latestMessage: {text: ''},
-              ...documentSnapshot.data(),
-            };
-          });
-          msg.map((chats) => {
-            this.goToChat({
-              chats,
-              title: userName,
-            });
+      dbRef.where('name', '==', userName).onSnapshot((querySnapshot) => {
+        const msg = querySnapshot.docs.map((documentSnapshot) => {
+          return {
+            _id: documentSnapshot.id,
+            name: '',
+            profileImage: '',
+            latestMessage: {text: ''},
+            ...documentSnapshot.data(),
+          };
+        });
+        msg.map((chats) => {
+          this.goToChat({
+            chats,
+            receiverId,
+            title: userName,
           });
         });
+      });
     }
   };
 
@@ -100,8 +100,8 @@ export default class CreateChat extends React.Component {
       <View style={styles.container}>
         <FlatList
           data={filterUser}
-          keyExtractor={(item) => item._id}
-          renderItem={({item}) => {
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({item, index}) => {
             const image = item.profileImage
               ? {uri: `${item.profileImage}`}
               : {

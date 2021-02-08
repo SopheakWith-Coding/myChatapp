@@ -9,8 +9,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
+
 const screenWidth = Dimensions.get('screen').width;
 class Login extends React.Component {
   constructor(props) {
@@ -18,15 +20,20 @@ class Login extends React.Component {
     this.state = {
       email: '',
       password: '',
+      loading: false,
     };
   }
 
   onLogin = () => {
     const {email, password} = this.state;
+    this.setState({loading: true});
     auth()
       .signInWithEmailAndPassword(email, password)
-      .then(() => {})
+      .then(() => {
+        this.setState({loading: false});
+      })
       .catch((err) => {
+        this.setState({loading: false});
         if (err.code === 'auth/wrong-password') {
           alert('Incorrect Password');
         } else if (err.code === 'auth/invalid-email') {
@@ -36,7 +43,7 @@ class Login extends React.Component {
   };
 
   render() {
-    const {email, password} = this.state;
+    const {email, password, loading} = this.state;
     const {navigation} = this.props;
 
     return (
@@ -74,7 +81,11 @@ class Login extends React.Component {
                 style={styles.ButtonTouchableOpacity}
                 disabled={email.length === 0 || password.length === 0}
                 onPress={this.onLogin}>
-                <Text style={styles.ButtonText}>Log In</Text>
+                {loading ? (
+                  <ActivityIndicator size="small" />
+                ) : (
+                  <Text style={styles.ButtonText}>Log In</Text>
+                )}
               </TouchableOpacity>
             </View>
             <View style={styles.ButtonTouchableOpacity}>
