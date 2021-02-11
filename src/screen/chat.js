@@ -31,10 +31,12 @@ export default class Chat extends React.Component {
   }
 
   async componentDidMount() {
+    const authUserID = auth().currentUser.uid;
     this.setState({loading: false});
     firestore()
-      .collection('Chats')
-      .orderBy('latestMessage.createdAt', 'desc')
+      .collection('users')
+      .where('creator', '!=', authUserID)
+      // .orderBy('latestMessage.createdAt', 'desc')
       .onSnapshot((querySnapshot) => {
         const threads = querySnapshot.docs.map((documentSnapshot) => {
           return {
@@ -52,15 +54,15 @@ export default class Chat extends React.Component {
   render() {
     const {users} = this.state;
     const {navigation} = this.props;
-    const {uid} = auth().currentUser;
+    // const {uid} = auth().currentUser;
 
-    const filterUser = users.filter((val) => val.uuid !== uid);
+    // const filterUser = users.filter((val) => val.uuid !== uid);
 
     return (
       <View style={styles.container}>
         {this.state.loading ? (
           <FlatList
-            data={filterUser}
+            data={users}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item, index}) => {
               const chats = item;

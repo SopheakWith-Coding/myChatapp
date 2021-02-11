@@ -37,64 +37,221 @@ export default class CreateChat extends React.Component {
     navigation.navigate('ChatRoom', data);
   };
 
-  CreateChatRoom = async (item) => {
-    const receiverId = item.uuid;
-    const authUid = auth().currentUser.uid;
+  chatID = (item) => {
+    const chatterID = auth().currentUser.uid;
+    const chateeID = item.uuid;
+    const chatIDpre = [];
+    chatIDpre.push(chatterID);
+    chatIDpre.push(chateeID);
+    chatIDpre.sort();
+    return chatIDpre.join('');
+  };
+
+  CreateChatRoom = async (call, item, authUserName) => {
+    const authName = `${authUserName.firstName} ${authUserName.lastName}`;
+    const chatID = call(item);
+    const chatterID = auth().currentUser.uid;
+    const chateeID = item.uuid;
     const image = item.profileImage
       ? `${item.profileImage}`
       : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
-
     const userName = `${item.firstName} ${item.lastName}`;
     const welcomeMessage = {
       text: `${userName} created Welcome!`,
       createdAt: new Date().getTime(),
     };
-
-    const dbRef = firestore().collection('Chats');
-    const result = await dbRef
-      .where('receiver', '==', receiverId || 'sender', '==', authUid)
-      .limit(1)
-      .get();
+    const chatIDpre = [];
+    chatIDpre.push(chatterID);
+    chatIDpre.push(chateeID);
+    chatIDpre.sort();
+    const dbRef = firestore().collection('users');
+    dbRef
+      .doc(chatterID)
+      .collection('friends')
+      .doc(chatID)
+      .set({roomID: chatID});
+    dbRef.doc(chatterID).set({
+      name: authName,
+      profileImage: image,
+      latestMessage: welcomeMessage,
+      members: chatIDpre,
+      creator: chatterID,
+    });
+    dbRef.doc(chateeID).collection('friends').doc(chatID).set({roomID: chatID});
+    dbRef.doc(chateeID).set({
+      name: userName,
+      profileImage: image,
+      latestMessage: welcomeMessage,
+      members: chatIDpre,
+      creator: chateeID,
+    });
+    const smgRef = firestore()
+      .collection('Chats')
+      .doc(chatID)
+      .collection('messages');
+    const result = await smgRef.where('readed', '==', true).limit(1).get();
     if (result.empty) {
-      dbRef
-        .add({
-          sender: authUid,
-          receiver: receiverId,
-          name: userName,
-          profileImage: image,
-          latestMessage: welcomeMessage,
-        })
-        .then((docRef) => {
-          docRef.collection('MESSAGES').add({
-            ...welcomeMessage,
-            system: true,
-          });
-        });
+      smgRef.doc().set({
+        createdAt: new Date().getTime(),
+        ...welcomeMessage,
+        system: true,
+        readed: true,
+      });
     } else {
-      dbRef.where('name', '==', userName).onSnapshot((querySnapshot) => {
-        const msg = querySnapshot.docs.map((documentSnapshot) => {
-          return {
-            _id: documentSnapshot.id,
-            name: '',
-            profileImage: '',
-            latestMessage: {text: ''},
-            ...documentSnapshot.data(),
-          };
-        });
-        msg.map((chats) => {
-          this.goToChat({
-            chats,
-            receiverId,
-            title: userName,
-          });
-        });
+      smgRef.doc().update({
+        createdAt: new Date().getTime(),
+        ...welcomeMessage,
+        system: true,
+        readed: true,
       });
     }
+
+    const {navigation} = this.props;
+    navigation.navigate('ChatRoom', {item, chatID, title: userName});
   };
+
+  // CreateChatRoom = async (call, item) => {
+  //   const chatID = call(item);
+  //   const chatterID = auth().currentUser.uid;
+  //   console.log(chatID);
+  //   const image = item.profileImage
+  //     ? `${item.profileImage}`
+  //     : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
+  //   const userName = `${item.firstName} ${item.lastName}`;
+  //   const welcomeMessage = {
+  //     text: `${userName} created Welcome!`,
+  //     createdAt: new Date().getTime(),
+  //   };
+  //   const dbRef = firestore().collection('messages').doc(chatID);
+  //   dbRef.collection('chats').add({
+  //     name: userName,
+  //     profileImage: image,
+  //     latestMessage: welcomeMessage,
+  //   });
+  //   dbRef.set({
+  //     name: userName,
+  //     profileImage: image,
+  //     latestMessage: welcomeMessage,
+  //     // members: chatIDpre,
+  //     creator: chatterID,
+  //   });
+  //   const {navigation} = this.props;
+  //   navigation.navigate('ChatRoom', {item, chatID, title: userName});
+  // };
+
+  // CreateChatRoom = async (call, item) => {
+  //   const receiverId = item.uuid;
+  //   const chatID = call(item);
+  //   const chatterID = auth().currentUser.uid;
+  //   const chateeID = item.uuid;
+  //   const userName = `${item.firstName} ${item.lastName}`;
+  //   const welcomeMessage = {
+  //     text: `${userName} created Welcome!`,
+  //     createdAt: new Date().getTime(),
+  //   };
+  //   const image = item.profileImage
+  //     ? `${item.profileImage}`
+  //     : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
+
+  //   const dbRef = firestore().collection('Chats');
+  //   const result = await dbRef.where('creator', '==', chatterID).limit(1).get();
+  //   if (result.empty) {
+  //     dbRef
+  //       .add({
+  //         name: userName,
+  //         profileImage: image,
+  //         latestMessage: welcomeMessage,
+  //         members: {
+  //           [chatterID]: true,
+  //           [chateeID]: true,
+  //         },
+  //         creator: chatterID,
+  //       })
+  //       .then((docRef) => {
+  //         docRef.collection('MESSAGES').add({
+  //           ...welcomeMessage,
+  //           system: true,
+  //         });
+  //       });
+  //   } else {
+  //     dbRef.where('creator', '==', chatID).onSnapshot((querySnapshot) => {
+  //       const msg = querySnapshot.docs.map((documentSnapshot) => {
+  //         return {
+  //           _id: documentSnapshot.id,
+  //           name: '',
+  //           profileImage: '',
+  //           latestMessage: {text: ''},
+  //           ...documentSnapshot.data(),
+  //         };
+  //       });
+  //       msg.map((chats) => {
+  //         this.goToChat({
+  //           chats,
+  //           receiverId,
+  //           title: userName,
+  //         });
+  //       });
+  //     });
+  //   }
+  // };
+
+  // CreateChatRoom = async (item) => {
+  //   const receiverId = item.uuid;
+  //   const authUid = auth().currentUser.uid;
+  //   const image = item.profileImage
+  //     ? `${item.profileImage}`
+  //     : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
+  //   const userName = `${item.firstName} ${item.lastName}`;
+  //   const welcomeMessage = {
+  //     text: `${userName} created Welcome!`,
+  //     createdAt: new Date().getTime(),
+  //   };
+  //   const dbRef = firestore().collection('Chats');
+  //   const result = await dbRef
+  //     .where('receiver', '==', receiverId || 'sender', '==', authUid)
+  //     .limit(1)
+  //     .get();
+  //   if (result.empty) {
+  //     dbRef
+  //       .add({
+  //         sender: authUid,
+  //         receiver: receiverId,
+  //         name: userName,
+  //         profileImage: image,
+  //         latestMessage: welcomeMessage,
+  //       })
+  //       .then((docRef) => {
+  //         docRef.collection('MESSAGES').add({
+  //           ...welcomeMessage,
+  //           system: true,
+  //         });
+  //       });
+  //   } else {
+  //     dbRef.where('name', '==', userName).onSnapshot((querySnapshot) => {
+  //       const msg = querySnapshot.docs.map((documentSnapshot) => {
+  //         return {
+  //           _id: documentSnapshot.id,
+  //           name: '',
+  //           profileImage: '',
+  //           latestMessage: {text: ''},
+  //           ...documentSnapshot.data(),
+  //         };
+  //       });
+  //       msg.map((chats) => {
+  //         this.goToChat({
+  //           chats,
+  //           receiverId,
+  //           title: userName,
+  //         });
+  //       });
+  //     });
+  //   }
+  // };
 
   render() {
     const {users} = this.state;
     const {uid} = auth().currentUser;
+    const filterAuthUser = users.filter((val) => val.uuid === uid);
     const filterUser = users.filter((val) => val.uuid !== uid);
     return (
       <View style={styles.container}>
@@ -109,21 +266,28 @@ export default class CreateChat extends React.Component {
                     'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=',
                 };
             return (
-              <TouchableOpacity onPress={() => this.CreateChatRoom(item)}>
-                <View style={styles.SubContainer}>
-                  <View style={styles.imageWrapper}>
-                    <Image
-                      style={{width: 50, height: 50, borderRadius: 50}}
-                      source={image}
-                    />
-                  </View>
-                  <View style={styles.TextWrapper}>
-                    <Text style={styles.TextTitle}>
-                      {item.firstName} {item.lastName}
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
+              <React.Fragment>
+                {filterAuthUser.map((authUserName) => (
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.CreateChatRoom(this.chatID, item, authUserName)
+                    }>
+                    <View style={styles.SubContainer}>
+                      <View style={styles.imageWrapper}>
+                        <Image
+                          style={{width: 50, height: 50, borderRadius: 50}}
+                          source={image}
+                        />
+                      </View>
+                      <View style={styles.TextWrapper}>
+                        <Text style={styles.TextTitle}>
+                          {item.firstName} {item.lastName}
+                        </Text>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </React.Fragment>
             );
           }}
         />
