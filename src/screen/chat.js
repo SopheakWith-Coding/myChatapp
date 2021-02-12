@@ -20,12 +20,7 @@ export default class Chat extends React.Component {
     super(props);
 
     this.state = {
-      uuid: '',
-      name: '',
-      profileImage: '',
       users: [],
-      getUser: [],
-      messages: [],
       loading: false,
     };
   }

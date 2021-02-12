@@ -48,14 +48,14 @@ export default class CreateChat extends React.Component {
   };
 
   CreateChatRoom = async (call, item, authUserName) => {
-    const authName = `${authUserName.firstName} ${authUserName.lastName}`;
+    const authName = `${authUserName.name}`;
+    const userName = `${item.name}`;
     const chatID = call(item);
     const chatterID = auth().currentUser.uid;
     const chateeID = item.uuid;
     const image = item.profileImage
       ? `${item.profileImage}`
       : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
-    const userName = `${item.firstName} ${item.lastName}`;
     const welcomeMessage = {
       text: "You're friend on Chatapp",
       createdAt: new Date().getTime(),
@@ -138,9 +138,7 @@ export default class CreateChat extends React.Component {
                         />
                       </View>
                       <View style={styles.TextWrapper}>
-                        <Text style={styles.TextTitle}>
-                          {item.firstName} {item.lastName}
-                        </Text>
+                        <Text style={styles.TextTitle}>{item.name}</Text>
                       </View>
                     </View>
                   </TouchableOpacity>

@@ -76,9 +76,7 @@ export default class Profile extends React.Component {
               />
             </TouchableOpacity>
           </View>
-          <Text style={styles.textTitle}>
-            {users.firstName} {users.lastName}
-          </Text>
+          <Text style={styles.textTitle}>{users.name}</Text>
           <Text style={styles.textSubtitle}>{users.phonenumber}</Text>
         </View>
 
@@ -93,9 +91,7 @@ export default class Profile extends React.Component {
             />
           </View>
           <View style={styles.textViewInformation}>
-            <Text style={styles.textInformation}>
-              {users.firstName} {users.lastName}
-            </Text>
+            <Text style={styles.textInformation}>{users.name}</Text>
           </View>
         </View>
 
@@ -110,9 +106,7 @@ export default class Profile extends React.Component {
             />
           </View>
           <View style={styles.textViewInformation}>
-            <Text style={styles.textInformation}>
-              {users.day} {users.month} {users.year}
-            </Text>
+            <Text style={styles.textInformation}>{users.dob}</Text>
           </View>
         </View>
 

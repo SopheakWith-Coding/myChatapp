@@ -72,13 +72,10 @@ class Signup extends React.Component {
         database()
           .ref(`/users/${uid}`)
           .set({
-            firstName: firstName,
-            lastName: lastName,
+            name: firstName + ' ' + lastName,
             email: email,
             phonenumber: phonenumber,
-            day: day,
-            month: month,
-            year: year,
+            dob: day + ' ' + month + ' ' + year,
             password: password,
             confirmpassword: confirmPassword,
             profileImage: profileImage,
