@@ -35,8 +35,8 @@ export default class Chat extends React.Component {
     this.setState({loading: false});
     firestore()
       .collection('users')
-      .where('creator', '!=', authUserID)
-      // .orderBy('latestMessage.createdAt', 'desc')
+      .doc(authUserID)
+      .collection('friends')
       .onSnapshot((querySnapshot) => {
         const threads = querySnapshot.docs.map((documentSnapshot) => {
           return {
@@ -54,10 +54,6 @@ export default class Chat extends React.Component {
   render() {
     const {users} = this.state;
     const {navigation} = this.props;
-    // const {uid} = auth().currentUser;
-
-    // const filterUser = users.filter((val) => val.uuid !== uid);
-
     return (
       <View style={styles.container}>
         {this.state.loading ? (
@@ -65,8 +61,7 @@ export default class Chat extends React.Component {
             data={users}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item, index}) => {
-              const chats = item;
-              const receiverId = item.receiver;
+              const chatID = item.roomID;
               const image = item.profileImage
                 ? {uri: item.profileImage}
                 : {
@@ -77,8 +72,8 @@ export default class Chat extends React.Component {
                 <TouchableOpacity
                   onPress={() =>
                     navigation.navigate('ChatRoom', {
-                      chats,
-                      receiverId,
+                      item,
+                      chatID,
                       title: `${item.name}`,
                     })
                   }>

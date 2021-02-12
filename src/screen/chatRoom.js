@@ -49,15 +49,16 @@ class ChatRoom extends React.Component {
   };
 
   send = (messages) => {
-    const {receiverId} = this.props.route.params;
+    const chatterID = auth().currentUser.uid;
     const {chatID} = this.props.route.params;
     const {item} = this.props.route.params;
+    const chateeID = item.creator;
     const authUid = auth().currentUser.uid;
     const text = messages[0].text;
-    const image = item.profileImage
-      ? `${item.profileImage}`
-      : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
-
+    const welcomeMessage = {
+      text: text,
+      createdAt: new Date().getTime(),
+    };
     firestore()
       .collection('Chats')
       .doc(chatID)
@@ -69,19 +70,13 @@ class ChatRoom extends React.Component {
           _id: authUid,
         },
       });
-    // firestore()
-    //   .collection('users')
-    //   .doc()
-    //   .update({
-    //     sender: authUid,
-    //     receiver: receiverId,
-    //     name: `${chats.name}`,
-    //     profileImage: image,
-    //     latestMessage: {
-    //       text: text,
-    //       createdAt: new Date().getTime(),
-    //     },
-    //   });
+    const dbRef = firestore().collection('users');
+    dbRef.doc(chatterID).collection('friends').doc(chatID).update({
+      latestMessage: welcomeMessage,
+    });
+    dbRef.doc(chateeID).collection('friends').doc(chatID).update({
+      latestMessage: welcomeMessage,
+    });
   };
 
   render() {
