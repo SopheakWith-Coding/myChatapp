@@ -48,39 +48,12 @@ export default class CreateChat extends React.Component {
   };
 
   CreateChatRoom = async (call, item, authUserName) => {
-    const authName = `${authUserName.name}`;
     const userName = `${item.name}`;
     const chatID = call(item);
-    const chatterID = auth().currentUser.uid;
-    const chateeID = item.uuid;
-    const image = item.profileImage
-      ? `${item.profileImage}`
-      : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
     const welcomeMessage = {
       text: "You're friend on Chatapp",
       createdAt: new Date().getTime(),
     };
-    const chatIDpre = [];
-    chatIDpre.push(chatterID);
-    chatIDpre.push(chateeID);
-    chatIDpre.sort();
-    const dbRef = firestore().collection('users');
-    dbRef.doc(chatterID).collection('friends').doc(chatID).set({
-      roomID: chatID,
-      name: userName,
-      profileImage: image,
-      latestMessage: welcomeMessage,
-      members: chatIDpre,
-      creator: chateeID,
-    });
-    dbRef.doc(chateeID).collection('friends').doc(chatID).set({
-      roomID: chatID,
-      name: authName,
-      profileImage: image,
-      latestMessage: welcomeMessage,
-      members: chatIDpre,
-      creator: chatterID,
-    });
     const smgRef = firestore()
       .collection('Chats')
       .doc(chatID)
@@ -103,7 +76,12 @@ export default class CreateChat extends React.Component {
     }
 
     const {navigation} = this.props;
-    navigation.navigate('ChatRoom', {item, chatID, title: userName});
+    navigation.navigate('ChatRoom', {
+      item,
+      chatID,
+      authUserName,
+      title: userName,
+    });
   };
 
   render() {

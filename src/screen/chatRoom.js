@@ -49,10 +49,20 @@ class ChatRoom extends React.Component {
   };
 
   send = (messages) => {
-    const chatterID = auth().currentUser.uid;
-    const {chatID} = this.props.route.params;
     const {item} = this.props.route.params;
-    const chateeID = item.creator;
+    const {chatID} = this.props.route.params;
+    const {authUserName} = this.props.route.params;
+    const chatterID = auth().currentUser.uid;
+    const chateeID = item.uuid;
+
+    const userName = `${item.name}`;
+    const authName = authUserName.name;
+    const image = item.profileImage
+      ? `${item.profileImage}`
+      : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
+    const authImage = authUserName.profileImage
+      ? `${item.profileImage}`
+      : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
     const authUid = auth().currentUser.uid;
     const text = messages[0].text;
     const welcomeMessage = {
@@ -70,12 +80,28 @@ class ChatRoom extends React.Component {
           _id: authUid,
         },
       });
+    const chatIDpre = [];
+    chatIDpre.push(chatterID);
+    chatIDpre.push(chateeID);
+    chatIDpre.sort();
     const dbRef = firestore().collection('users');
-    dbRef.doc(chatterID).collection('friends').doc(chatID).update({
+    dbRef.doc(chatterID).collection('friends').doc(chatID).set({
+      uuid: chateeID,
+      roomID: chatID,
+      name: userName,
+      profileImage: image,
       latestMessage: welcomeMessage,
+      members: chatIDpre,
+      creator: chateeID,
     });
-    dbRef.doc(chateeID).collection('friends').doc(chatID).update({
+    dbRef.doc(chateeID).collection('friends').doc(chatID).set({
+      uuid: chatterID,
+      roomID: chatID,
+      name: authName,
+      profileImage: authImage,
       latestMessage: welcomeMessage,
+      members: chatIDpre,
+      creator: chatterID,
     });
   };
 

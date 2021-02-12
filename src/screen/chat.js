@@ -12,6 +12,7 @@ import auth from '@react-native-firebase/auth';
 import moment from 'moment';
 import {FlatList} from 'react-native-gesture-handler';
 import firestore from '@react-native-firebase/firestore';
+import database from '@react-native-firebase/database';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -20,6 +21,7 @@ export default class Chat extends React.Component {
     super(props);
 
     this.state = {
+      authUserName: {},
       users: [],
       loading: false,
     };
@@ -42,12 +44,25 @@ export default class Chat extends React.Component {
             ...documentSnapshot.data(),
           };
         });
+        this.setRemoteUsers();
         this.setState({users: threads, loading: true});
       });
   }
+  setRemoteUsers = async () => {
+    const dbRef = database().ref('users');
+    const data = await dbRef.once('value');
+    const {uid} = auth().currentUser;
+    const filterAuthUser = Object.values(data.val()).filter(
+      (val) => val.uuid === uid,
+    );
+    filterAuthUser.map((val) => {
+      this.setState({authUserName: val});
+    });
+  };
 
   render() {
     const {users} = this.state;
+    const {authUserName} = this.state;
     const {navigation} = this.props;
     return (
       <View style={styles.container}>
@@ -69,6 +84,7 @@ export default class Chat extends React.Component {
                     navigation.navigate('ChatRoom', {
                       item,
                       chatID,
+                      authUserName,
                       title: `${item.name}`,
                     })
                   }>
