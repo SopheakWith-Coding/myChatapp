@@ -1,5 +1,5 @@
 import React from 'react';
-import {TouchableOpacity, Image} from 'react-native';
+import {TouchableOpacity, Text, Image} from 'react-native';
 import 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -10,7 +10,8 @@ import {HeaderBackButton} from '@react-navigation/stack';
 import LoginScreen from './src/screen/login';
 import SignUpScreen from './src/screen/signup';
 import ChatRoom from './src/screen/chatRoom';
-import createChatScreen from './src/screen/createChat';
+import createChatScreen from './src/screen/newMessage';
+import createGroupChatScreen from './src/screen/newGroup';
 import database from '@react-native-firebase/database';
 
 import ChatScreen from './src/screen/chat';
@@ -53,7 +54,7 @@ export default class Navigation extends React.PureComponent {
             options={({navigation}) => ({
               headerRight: () => (
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('Create Chat')}>
+                  onPress={() => navigation.navigate('New Message')}>
                   <Image
                     style={{width: 22, height: 22, marginRight: 15}}
                     source={{
@@ -91,7 +92,25 @@ export default class Navigation extends React.PureComponent {
               ),
             })}
           />
-          <Stack.Screen name="Create Chat" component={createChatScreen} />
+          <Stack.Screen
+            name="New Message"
+            component={createChatScreen}
+            options={({navigation}) => ({
+              title: 'Cancel',
+            })}
+          />
+          <Stack.Screen
+            name="New  Group"
+            component={createGroupChatScreen}
+            options={({navigation}) => ({
+              headerRight: () => (
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('New Message')}>
+                  <Text style={{marginRight: 15, fontSize: 18}}>Next</Text>
+                </TouchableOpacity>
+              ),
+            })}
+          />
         </Stack.Navigator>
       );
     }

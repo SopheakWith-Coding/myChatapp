@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import moment from 'moment';
-import {FlatList} from 'react-native-gesture-handler';
+import {FlatList, TextInput} from 'react-native-gesture-handler';
 import firestore from '@react-native-firebase/firestore';
 import database from '@react-native-firebase/database';
 
