@@ -11,7 +11,8 @@ import LoginScreen from './src/screen/login';
 import SignUpScreen from './src/screen/signup';
 import ChatRoom from './src/screen/chatRoom';
 import createChatScreen from './src/screen/newMessage';
-import createGroupChatScreen from './src/screen/newGroup';
+import newGroupChatScreen from './src/screen/newGroup';
+import createGroupChatScreen from './src/screen/createGroup';
 import database from '@react-native-firebase/database';
 
 import ChatScreen from './src/screen/chat';
@@ -95,22 +96,22 @@ export default class Navigation extends React.PureComponent {
           <Stack.Screen
             name="New Message"
             component={createChatScreen}
-            options={({navigation}) => ({
-              title: 'Cancel',
-            })}
+            options={{headerBackTitle: 'Cancel'}}
           />
           <Stack.Screen
             name="New  Group"
-            component={createGroupChatScreen}
+            component={newGroupChatScreen}
             options={({navigation}) => ({
               headerRight: () => (
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('New Message')}>
+                  onPress={() => navigation.navigate('Create Group')}>
                   <Text style={{marginRight: 15, fontSize: 18}}>Next</Text>
                 </TouchableOpacity>
               ),
+              headerBackTitle: 'Cancel',
             })}
           />
+          <Stack.Screen name="Create Group" component={createGroupChatScreen} />
         </Stack.Navigator>
       );
     }

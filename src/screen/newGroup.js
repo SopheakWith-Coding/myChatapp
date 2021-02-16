@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
+import CheckBox from '@react-native-community/checkbox';
 const screenWidth = Dimensions.get('screen').width;
 export default class newGroupChatScreen extends React.Component {
   constructor(props) {
@@ -16,6 +17,7 @@ export default class newGroupChatScreen extends React.Component {
     this.state = {
       users: [],
       selectedUser: [],
+      toggleCheckBo: null,
     };
   }
 
@@ -29,43 +31,64 @@ export default class newGroupChatScreen extends React.Component {
     this.setState({users: Object.values(data.val())});
   };
 
+  selectedItem = (item) => {
+    const helperArray = this.state.selectedUser;
+    const index = helperArray.indexOf(item);
+    if (helperArray.indexOf(item) > -1) {
+      helperArray.splice(index, 1);
+      this.setState({toggleCheckBox: false});
+    } else {
+      helperArray.push(item);
+    }
+    if (helperArray.length !== 0) {
+      this.setState({toggleCheckBox: true});
+    } else {
+      this.setState({toggleCheckBox: false});
+    }
+    this.setState({selectedUser: helperArray});
+  };
+
   render() {
-    const {users, selectedUser} = this.state;
-    console.log(selectedUser);
+    const {users, selectedUser, toggleCheckBox} = this.state;
     const {uid} = auth().currentUser;
     const filterUser = users.filter((val) => val.uuid !== uid);
     return (
       <View style={styles.container}>
-        <View style={styles.ShowUser}>
-          <FlatList
-            horizontal
-            data={selectedUser}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({item, index}) => {
-              const image = item.profileImage
-                ? {uri: `${item.profileImage}`}
-                : {
-                    uri:
-                      'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=',
-                  };
-              return (
-                <View style={styles.HorizontalContainer}>
-                  <View style={styles.HorizontalSubContainer}>
-                    <View style={styles.HorizontalImageWrapper}>
-                      <Image
-                        style={{width: 50, height: 50, borderRadius: 50}}
-                        source={image}
-                      />
-                    </View>
-                    <View style={styles.HorizontalTextWrapper}>
-                      <Text style={{fontSize: 18}}>{item.name}</Text>
+        {toggleCheckBox ? (
+          <View style={styles.ShowUser}>
+            <FlatList
+              horizontal
+              data={selectedUser}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({item, index}) => {
+                const image = item.profileImage
+                  ? {uri: `${item.profileImage}`}
+                  : {
+                      uri:
+                        'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=',
+                    };
+                return (
+                  <View style={styles.HorizontalContainer}>
+                    <View style={styles.HorizontalSubContainer}>
+                      <View style={styles.HorizontalImageWrapper}>
+                        <Image
+                          style={{width: 50, height: 50, borderRadius: 50}}
+                          source={image}
+                        />
+                      </View>
+                      <View style={styles.HorizontalTextWrapper}>
+                        <Text style={{fontSize: 18}}>{item.name}</Text>
+                      </View>
                     </View>
                   </View>
-                </View>
-              );
-            }}
-          />
-        </View>
+                );
+              }}
+            />
+          </View>
+        ) : (
+          <View />
+        )}
+
         <FlatList
           data={filterUser}
           keyExtractor={(item, index) => index.toString()}
@@ -87,7 +110,13 @@ export default class newGroupChatScreen extends React.Component {
                 <View style={styles.TextWrapper}>
                   <Text style={styles.TextTitle}>{item.name}</Text>
                 </View>
-                <View style={styles.CheckBoxWrapper} />
+                <View style={styles.CheckBoxWrapper}>
+                  <CheckBox
+                    disabled={false}
+                    style={styles.CheckBox}
+                    onValueChange={() => this.selectedItem(item)}
+                  />
+                </View>
               </View>
             );
           }}
