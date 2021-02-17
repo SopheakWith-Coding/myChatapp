@@ -72,6 +72,8 @@ export default class Chat extends React.Component {
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item, index}) => {
               const chatID = item.roomID;
+              const type = item.type;
+              console.log(item);
               const image = item.profileImage
                 ? {uri: item.profileImage}
                 : {
@@ -83,6 +85,7 @@ export default class Chat extends React.Component {
                   onPress={() =>
                     navigation.navigate('ChatRoom', {
                       item,
+                      type,
                       chatID,
                       authUserName,
                       title: `${item.name}`,

@@ -7,11 +7,11 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  ScrollView,
 } from 'react-native';
 import database from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-import {ScrollView} from 'react-native-gesture-handler';
 
 const screenWidth = Dimensions.get('screen').width;
 
@@ -72,8 +72,10 @@ export default class CreateChat extends React.Component {
     }
 
     const {navigation} = this.props;
+    const type = 'Chats';
     navigation.navigate('ChatRoom', {
       item,
+      type,
       chatID,
       authUserName,
       title: userName,

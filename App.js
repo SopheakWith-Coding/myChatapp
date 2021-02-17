@@ -102,16 +102,17 @@ export default class Navigation extends React.PureComponent {
             name="New  Group"
             component={newGroupChatScreen}
             options={({navigation}) => ({
-              headerRight: () => (
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('Create Group')}>
-                  <Text style={{marginRight: 15, fontSize: 18}}>Next</Text>
-                </TouchableOpacity>
-              ),
               headerBackTitle: 'Cancel',
             })}
           />
-          <Stack.Screen name="Create Group" component={createGroupChatScreen} />
+          <Stack.Screen
+            name="Create Group"
+            component={createGroupChatScreen}
+            options={{
+              title: 'New Group',
+              headerBackTitle: 'Cancel',
+            }}
+          />
         </Stack.Navigator>
       );
     }

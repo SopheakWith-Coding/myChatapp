@@ -14,8 +14,9 @@ class ChatRoom extends React.Component {
   componentDidMount() {
     this.header();
     const {chatID} = this.props.route.params;
+    const {type} = this.props.route.params;
     firestore()
-      .collection('Chats')
+      .collection(type)
       .doc(chatID)
       .collection('messages')
       .orderBy('createdAt', 'desc')
@@ -93,6 +94,7 @@ class ChatRoom extends React.Component {
       latestMessage: welcomeMessage,
       members: chatIDpre,
       creator: chateeID,
+      type: 'Chats',
     });
     dbRef.doc(chateeID).collection('friends').doc(chatID).set({
       uuid: chatterID,
@@ -102,6 +104,7 @@ class ChatRoom extends React.Component {
       latestMessage: welcomeMessage,
       members: chatIDpre,
       creator: chatterID,
+      type: 'Chats',
     });
   };
 

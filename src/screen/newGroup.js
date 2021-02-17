@@ -6,6 +6,7 @@ import {
   Dimensions,
   View,
   Image,
+  TouchableOpacity,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
@@ -18,12 +19,28 @@ export default class newGroupChatScreen extends React.Component {
       users: [],
       selectedUser: [],
       toggleCheckBo: null,
+      handleClckNext: null,
     };
   }
 
   componentDidMount() {
+    this.header();
     this.setRemoteUsers();
   }
+
+  header = () => {
+    const {navigation} = this.props;
+    const {selectedUser} = this.state;
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Create Group', {selectedUser})}
+          style={{marginRight: 15}}>
+          <Text style={{fontSize: 18}}>Next</Text>
+        </TouchableOpacity>
+      ),
+    });
+  };
 
   setRemoteUsers = async () => {
     const dbRef = database().ref('users');
