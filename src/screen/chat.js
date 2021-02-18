@@ -7,10 +7,10 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
+  FlatList,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import moment from 'moment';
-import {FlatList, TextInput} from 'react-native-gesture-handler';
 import firestore from '@react-native-firebase/firestore';
 import database from '@react-native-firebase/database';
 
@@ -71,9 +71,9 @@ export default class Chat extends React.Component {
             data={users}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item, index}) => {
-              const chatID = item.roomID;
               const type = item.type;
-              console.log(item);
+              const chatIDpre = item.members;
+              const chatID = item.roomID;
               const image = item.profileImage
                 ? {uri: item.profileImage}
                 : {
@@ -84,8 +84,9 @@ export default class Chat extends React.Component {
                 <TouchableOpacity
                   onPress={() =>
                     navigation.navigate('ChatRoom', {
-                      item,
                       type,
+                      item,
+                      chatIDpre,
                       chatID,
                       authUserName,
                       title: `${item.name}`,

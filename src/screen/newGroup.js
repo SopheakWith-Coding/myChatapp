@@ -26,19 +26,46 @@ export default class newGroupChatScreen extends React.Component {
   componentDidMount() {
     this.header();
     this.setRemoteUsers();
+    this.getRemoteAuthUsers();
   }
 
   header = () => {
     const {navigation} = this.props;
-    const {selectedUser} = this.state;
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity
-          onPress={() => navigation.navigate('Create Group', {selectedUser})}
+          onPress={() => this.CreateGroupRoom()}
           style={{marginRight: 15}}>
           <Text style={{fontSize: 18}}>Next</Text>
         </TouchableOpacity>
       ),
+    });
+  };
+
+  getRemoteAuthUsers = async () => {
+    const {uid} = auth().currentUser;
+    const dbRef = database().ref('users');
+    const data = await dbRef.once('value');
+    const users = Object.values(data.val()).filter((val) => val.uuid === uid);
+    users.map((val) => {
+      this.setState({authUser: val});
+    });
+  };
+
+  CreateGroupRoom = () => {
+    const {navigation} = this.props;
+    const {selectedUser} = this.state;
+    const {authUser} = this.state;
+    const authUserID = authUser.uuid;
+    const chatIDpre = [];
+    chatIDpre.push(authUserID);
+    selectedUser.map((user) => {
+      chatIDpre.push(user.uuid);
+    });
+    navigation.navigate('Create Group', {
+      authUser,
+      selectedUser,
+      chatIDpre,
     });
   };
 

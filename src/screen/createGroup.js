@@ -18,42 +18,58 @@ export default class CreateGroup extends React.Component {
     super(props);
     this.state = {
       GroupName: '',
-      authUser: {},
     };
   }
 
   componentDidMount() {
     this.header();
   }
-  CreateGroupChat = () => {
-    const {selectedUser} = this.props.route.params;
+
+  CreateGroupMessages = () => {
+    const {authUser} = this.props.route.params;
+    const authID = authUser.uuid;
     const {GroupName} = this.state;
+    const {chatIDpre} = this.props.route.params;
     const welcomeMessage = {
       text: "You're friend on Chatapp",
       createdAt: new Date().getTime(),
     };
-    const chatIDpre = [];
-    chatIDpre.push();
-    chatIDpre.sort();
-    selectedUser.map((user) => {
-      chatIDpre.push(user.uuid);
-    });
+    const groupRef = firestore()
+      .collection('users')
+      .doc()
+      .collection('friends')
+      .doc();
+    const chatID = groupRef.id;
     const dbRef = firestore().collection('users');
-    selectedUser.forEach((element) => {
-      dbRef.doc(element.uuid).collection('friends').doc().set({
-        uuid: element.uuid,
+    chatIDpre.forEach((element) => {
+      dbRef.doc(element).collection('friends').doc(chatID).set({
+        uuid: element,
         name: GroupName,
         profileImage: '',
         latestMessage: welcomeMessage,
         members: chatIDpre,
-        creator: 'dfsjh',
+        creator: authID,
         type: 'GroupChats',
+        roomID: chatID,
       });
     });
-
+    const smgRef = firestore()
+      .collection('Chats')
+      .doc(chatID)
+      .collection('messages');
+    smgRef.doc().set({
+      createdAt: new Date().getTime(),
+      ...welcomeMessage,
+      system: true,
+      readed: true,
+    });
     const {navigation} = this.props;
-    selectedUser.map((val) => {
-      navigation.navigate('', {selectedUser});
+    const type = 'GroupChats';
+    navigation.navigate('ChatRoom', {
+      type,
+      chatIDpre,
+      chatID,
+      title: GroupName,
     });
   };
 
@@ -62,7 +78,7 @@ export default class CreateGroup extends React.Component {
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity
-          onPress={() => this.CreateGroupChat()}
+          onPress={() => this.CreateGroupMessages()}
           style={{marginRight: 15}}>
           <Text style={{fontSize: 18}}>Create</Text>
         </TouchableOpacity>

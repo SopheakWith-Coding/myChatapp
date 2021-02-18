@@ -74,8 +74,8 @@ export default class CreateChat extends React.Component {
     const {navigation} = this.props;
     const type = 'Chats';
     navigation.navigate('ChatRoom', {
-      item,
       type,
+      item,
       chatID,
       authUserName,
       title: userName,

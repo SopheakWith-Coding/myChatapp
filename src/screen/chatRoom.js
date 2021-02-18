@@ -8,15 +8,16 @@ class ChatRoom extends React.Component {
     super(props);
     this.state = {
       messages: [],
+      Type: null,
     };
   }
 
   componentDidMount() {
+    this.getTypeChat();
     this.header();
     const {chatID} = this.props.route.params;
-    const {type} = this.props.route.params;
     firestore()
-      .collection(type)
+      .collection('Chats')
       .doc(chatID)
       .collection('messages')
       .orderBy('createdAt', 'desc')
@@ -49,21 +50,9 @@ class ChatRoom extends React.Component {
     });
   };
 
-  send = (messages) => {
-    const {item} = this.props.route.params;
+  GroupSend = (messages) => {
     const {chatID} = this.props.route.params;
-    const {authUserName} = this.props.route.params;
-    const chatterID = auth().currentUser.uid;
-    const chateeID = item.uuid;
-
-    const userName = `${item.name}`;
-    const authName = authUserName.name;
-    const image = item.profileImage
-      ? `${item.profileImage}`
-      : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
-    const authImage = authUserName.profileImage
-      ? `${item.profileImage}`
-      : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
+    const {chatIDpre} = this.props.route.params;
     const authUid = auth().currentUser.uid;
     const text = messages[0].text;
     const welcomeMessage = {
@@ -81,10 +70,38 @@ class ChatRoom extends React.Component {
           _id: authUid,
         },
       });
-    const chatIDpre = [];
-    chatIDpre.push(chatterID);
-    chatIDpre.push(chateeID);
-    chatIDpre.sort();
+    const dbRef = firestore().collection('users');
+    chatIDpre.forEach((element) => {
+      dbRef.doc(element).collection('friends').doc(chatID).update({
+        latestMessage: welcomeMessage,
+      });
+    });
+  };
+
+  ChatsSend = (messages) => {
+    const {chatID} = this.props.route.params;
+    const {item} = this.props.route.params;
+    const authUid = auth().currentUser.uid;
+    const {authUserName} = this.props.route.params;
+    const chatterID = auth().currentUser.uid;
+    const chateeID = item.uuid;
+    const text = messages[0].text;
+    const welcomeMessage = {
+      text: text,
+      createdAt: new Date().getTime(),
+    };
+    const userName = `${item.name}`;
+    const authName = authUserName.name;
+    const image = item.profileImage
+      ? `${item.profileImage}`
+      : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
+    const authImage = authUserName.profileImage
+      ? `${item.profileImage}`
+      : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
+    const membersID = [];
+    membersID.push(chatterID);
+    membersID.push(chateeID);
+    membersID.sort();
     const dbRef = firestore().collection('users');
     dbRef.doc(chatterID).collection('friends').doc(chatID).set({
       uuid: chateeID,
@@ -92,7 +109,7 @@ class ChatRoom extends React.Component {
       name: userName,
       profileImage: image,
       latestMessage: welcomeMessage,
-      members: chatIDpre,
+      members: membersID,
       creator: chateeID,
       type: 'Chats',
     });
@@ -102,10 +119,35 @@ class ChatRoom extends React.Component {
       name: authName,
       profileImage: authImage,
       latestMessage: welcomeMessage,
-      members: chatIDpre,
+      members: membersID,
       creator: chatterID,
       type: 'Chats',
     });
+    firestore()
+      .collection('Chats')
+      .doc(chatID)
+      .collection('messages')
+      .add({
+        text,
+        createdAt: new Date().getTime(),
+        user: {
+          _id: authUid,
+        },
+      });
+  };
+
+  getTypeChat = () => {
+    const {type} = this.props.route.params;
+    this.setState({Type: type});
+  };
+
+  callSendFunction = (messages) => {
+    const {Type} = this.state;
+    if (Type == 'Chats') {
+      this.ChatsSend(messages);
+    } else {
+      this.GroupSend(messages);
+    }
   };
 
   render() {
@@ -114,7 +156,7 @@ class ChatRoom extends React.Component {
     return (
       <GiftedChat
         messages={messages}
-        onSend={this.send}
+        onSend={this.callSendFunction}
         user={{
           _id: authUid,
         }}
