@@ -1,4 +1,5 @@
 import React from 'react';
+import {Dimensions, Platform} from 'react-native';
 import {GiftedChat} from 'react-native-gifted-chat';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
@@ -15,6 +16,10 @@ class ChatRoom extends React.Component {
   componentDidMount() {
     this.getTypeChat();
     this.header();
+    this.fetchChatMessages();
+  }
+
+  fetchChatMessages = () => {
     const {chatID} = this.props.route.params;
     firestore()
       .collection('Chats')
@@ -40,7 +45,7 @@ class ChatRoom extends React.Component {
         });
         this.setState({messages: messages});
       });
-  }
+  };
 
   header = () => {
     const {navigation} = this.props;
@@ -153,9 +158,12 @@ class ChatRoom extends React.Component {
   render() {
     const authUid = auth().currentUser.uid;
     const {messages} = this.state;
+    const isIphoneX =
+      Platform.OS === 'ios' && Dimensions.get('window').height >= 812;
+
     return (
       <GiftedChat
-        bottomOffset={78}
+        bottomOffset={isIphoneX ? 48.5 + 30 : 48.5}
         messages={messages}
         onSend={this.callSendFunction}
         user={{

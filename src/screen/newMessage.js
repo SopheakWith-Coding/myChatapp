@@ -129,7 +129,7 @@ export default class CreateChat extends React.Component {
                   };
               return (
                 <React.Fragment>
-                  {filterAuthUser.map((authUserName) => (
+                  {filterAuthUser.map((authUserName, key) => (
                     <TouchableOpacity
                       onPress={() =>
                         this.CreateChatRoom(this.chatID, item, authUserName)
