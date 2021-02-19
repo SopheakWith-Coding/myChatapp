@@ -6,7 +6,6 @@ import {
   Text,
   StyleSheet,
   Dimensions,
-  ScrollView,
   TextInput,
   TouchableOpacity,
 } from 'react-native';
@@ -86,6 +85,15 @@ export default class CreateGroup extends React.Component {
     });
   };
 
+  totalSelectedUser = () => {
+    const {selectedUser} = this.props.route.params;
+    return (
+      <View style={{marginLeft: 15, marginBottom: 5}}>
+        <Text style={{fontSize: 18}}>{selectedUser.length} MEMBERS</Text>
+      </View>
+    );
+  };
+
   render() {
     const {selectedUser} = this.props.route.params;
     return (
@@ -101,36 +109,32 @@ export default class CreateGroup extends React.Component {
             onChangeText={(GroupName) => this.setState({GroupName})}
           />
         </View>
-        <ScrollView>
-          <View style={{marginLeft: 15, marginBottom: 5}}>
-            <Text style={{fontSize: 18}}>{selectedUser.length} MEMBERS</Text>
-          </View>
-          <FlatList
-            data={selectedUser}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({item, index}) => {
-              const image = item.profileImage
-                ? {uri: `${item.profileImage}`}
-                : {
-                    uri:
-                      'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=',
-                  };
-              return (
-                <View style={styles.SubContainer}>
-                  <View style={styles.imageWrapper}>
-                    <Image
-                      style={{width: 50, height: 50, borderRadius: 50}}
-                      source={image}
-                    />
-                  </View>
-                  <View style={styles.TextWrapper}>
-                    <Text style={styles.TextTitle}>{item.name}</Text>
-                  </View>
+        <FlatList
+          ListHeaderComponent={this.totalSelectedUser}
+          data={selectedUser}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({item, index}) => {
+            const image = item.profileImage
+              ? {uri: `${item.profileImage}`}
+              : {
+                  uri:
+                    'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=',
+                };
+            return (
+              <View style={styles.SubContainer}>
+                <View style={styles.imageWrapper}>
+                  <Image
+                    style={{width: 50, height: 50, borderRadius: 50}}
+                    source={image}
+                  />
                 </View>
-              );
-            }}
-          />
-        </ScrollView>
+                <View style={styles.TextWrapper}>
+                  <Text style={styles.TextTitle}>{item.name}</Text>
+                </View>
+              </View>
+            );
+          }}
+        />
       </View>
     );
   }

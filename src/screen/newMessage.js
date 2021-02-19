@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
-  ScrollView,
 } from 'react-native';
 import database from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
@@ -82,12 +81,7 @@ export default class CreateChat extends React.Component {
     });
   };
 
-  render() {
-    const {navigation} = this.props;
-    const {users} = this.state;
-    const {uid} = auth().currentUser;
-    const filterAuthUser = users.filter((val) => val.uuid === uid);
-    const filterUser = users.filter((val) => val.uuid !== uid);
+  flatListHeader = () => {
     const goToImage = {
       uri:
         'https://icon-library.com/images/greater-than-icon/greater-than-icon-9.jpg',
@@ -95,63 +89,72 @@ export default class CreateChat extends React.Component {
     const groupImage = {
       uri: 'https://static.thenounproject.com/png/58999-200.png',
     };
+    const {navigation} = this.props;
+    return (
+      <TouchableOpacity onPress={() => navigation.navigate('New  Group')}>
+        <View style={styles.SubContainer}>
+          <View style={styles.GroupImageWrapper}>
+            <Image
+              style={{width: 40, height: 40, borderRadius: 40}}
+              source={groupImage}
+            />
+          </View>
+          <View style={styles.GroupTextWrapper}>
+            <Text style={styles.TextTitle}>Create a New Group</Text>
+          </View>
+          <View style={styles.NavigationSignWrapper}>
+            <Image
+              style={{width: 30, height: 30, borderRadius: 30}}
+              source={goToImage}
+            />
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+  render() {
+    const {users} = this.state;
+    const {uid} = auth().currentUser;
+    const filterAuthUser = users.filter((val) => val.uuid === uid);
+    const filterUser = users.filter((val) => val.uuid !== uid);
     return (
       <View style={styles.container}>
-        <ScrollView>
-          <TouchableOpacity onPress={() => navigation.navigate('New  Group')}>
-            <View style={styles.SubContainer}>
-              <View style={styles.GroupImageWrapper}>
-                <Image
-                  style={{width: 40, height: 40, borderRadius: 40}}
-                  source={groupImage}
-                />
-              </View>
-              <View style={styles.GroupTextWrapper}>
-                <Text style={styles.TextTitle}>Create a New Group</Text>
-              </View>
-              <View style={styles.NavigationSignWrapper}>
-                <Image
-                  style={{width: 30, height: 30, borderRadius: 30}}
-                  source={goToImage}
-                />
-              </View>
-            </View>
-          </TouchableOpacity>
-          <FlatList
-            data={filterUser}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({item, index}) => {
-              const image = item.profileImage
-                ? {uri: `${item.profileImage}`}
-                : {
-                    uri:
-                      'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=',
-                  };
-              return (
-                <React.Fragment>
-                  {filterAuthUser.map((authUserName, key) => (
-                    <TouchableOpacity
-                      onPress={() =>
-                        this.CreateChatRoom(this.chatID, item, authUserName)
-                      }>
-                      <View style={styles.SubContainer}>
-                        <View style={styles.imageWrapper}>
-                          <Image
-                            style={{width: 50, height: 50, borderRadius: 50}}
-                            source={image}
-                          />
-                        </View>
-                        <View style={styles.TextWrapper}>
-                          <Text style={styles.TextTitle}>{item.name}</Text>
-                        </View>
+        <FlatList
+          ListHeaderComponent={this.flatListHeader}
+          data={filterUser}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({item, index}) => {
+            const image = item.profileImage
+              ? {uri: `${item.profileImage}`}
+              : {
+                  uri:
+                    'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=',
+                };
+            return (
+              <React.Fragment>
+                {filterAuthUser.map((authUserName, key) => (
+                  <TouchableOpacity
+                    key
+                    onPress={() =>
+                      this.CreateChatRoom(this.chatID, item, authUserName)
+                    }>
+                    <View style={styles.SubContainer}>
+                      <View style={styles.imageWrapper}>
+                        <Image
+                          style={{width: 50, height: 50, borderRadius: 50}}
+                          source={image}
+                        />
                       </View>
-                    </TouchableOpacity>
-                  ))}
-                </React.Fragment>
-              );
-            }}
-          />
-        </ScrollView>
+                      <View style={styles.TextWrapper}>
+                        <Text style={styles.TextTitle}>{item.name}</Text>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </React.Fragment>
+            );
+          }}
+        />
       </View>
     );
   }
