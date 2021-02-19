@@ -155,6 +155,7 @@ class ChatRoom extends React.Component {
     const {messages} = this.state;
     return (
       <GiftedChat
+        bottomOffset={78}
         messages={messages}
         onSend={this.callSendFunction}
         user={{
