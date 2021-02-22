@@ -6,7 +6,6 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  ActivityIndicator,
   FlatList,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
@@ -27,9 +26,13 @@ export default class Chat extends React.Component {
     };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
+    this.getUseTochatUser();
+    this.getRemoteUsers();
+  }
+
+  getUseTochatUser() {
     const authUserID = auth().currentUser.uid;
-    this.setState({loading: false});
     firestore()
       .collection('users')
       .doc(authUserID)
@@ -44,11 +47,11 @@ export default class Chat extends React.Component {
             ...documentSnapshot.data(),
           };
         });
-        this.setRemoteUsers();
-        this.setState({users: threads, loading: true});
+        this.setState({users: threads});
       });
   }
-  setRemoteUsers = async () => {
+
+  getRemoteUsers = async () => {
     const dbRef = database().ref('users');
     const data = await dbRef.once('value');
     const {uid} = auth().currentUser;
@@ -66,59 +69,55 @@ export default class Chat extends React.Component {
     const {navigation} = this.props;
     return (
       <View style={styles.container}>
-        {this.state.loading ? (
-          <FlatList
-            data={users}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({item, index}) => {
-              const type = item.type;
-              const chatIDpre = item.members;
-              const chatID = item.roomID;
-              const image = item.profileImage
-                ? {uri: item.profileImage}
-                : {
-                    uri:
-                      'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=',
-                  };
-              return (
-                <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate('ChatRoom', {
-                      type,
-                      item,
-                      chatIDpre,
-                      chatID,
-                      authUserName,
-                      title: `${item.name}`,
-                    })
-                  }>
-                  <View style={styles.SubContainer}>
-                    <View style={styles.imageWrapper}>
-                      <Image
-                        style={{width: 50, height: 50, borderRadius: 50}}
-                        source={image}
-                      />
-                    </View>
-
-                    <View style={styles.TextWrapper}>
-                      <Text style={styles.TextTitle}>{item.name}</Text>
-                      <Text style={styles.TextSubTitle}>
-                        {item.latestMessage.text.slice(0, 90)}
-                      </Text>
-                    </View>
-                    <View style={styles.TimeWrapper}>
-                      <Text>
-                        {moment(item.latestMessage.createdAt).format('hh:mm A')}
-                      </Text>
-                    </View>
+        <FlatList
+          data={users}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({item, index}) => {
+            const type = item.type;
+            const chatIDpre = item.members;
+            const chatID = item.roomID;
+            const image = item.profileImage
+              ? {uri: item.profileImage}
+              : {
+                  uri:
+                    'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=',
+                };
+            return (
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('ChatRoom', {
+                    type,
+                    item,
+                    chatIDpre,
+                    chatID,
+                    authUserName,
+                    title: `${item.name}`,
+                  })
+                }>
+                <View style={styles.SubContainer}>
+                  <View style={styles.imageWrapper}>
+                    <Image
+                      style={{width: 50, height: 50, borderRadius: 50}}
+                      source={image}
+                    />
                   </View>
-                </TouchableOpacity>
-              );
-            }}
-          />
-        ) : (
-          <ActivityIndicator size="large" />
-        )}
+
+                  <View style={styles.TextWrapper}>
+                    <Text style={styles.TextTitle}>{item.name}</Text>
+                    <Text style={styles.TextSubTitle}>
+                      {item.latestMessage.text.slice(0, 90)}
+                    </Text>
+                  </View>
+                  <View style={styles.TimeWrapper}>
+                    <Text>
+                      {moment(item.latestMessage.createdAt).format('hh:mm A')}
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            );
+          }}
+        />
       </View>
     );
   }
