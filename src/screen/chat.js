@@ -18,7 +18,6 @@ const screenWidth = Dimensions.get('window').width;
 export default class Chat extends React.Component {
   constructor(props) {
     super(props);
-
     this.state = {
       authUserName: {},
       users: [],
@@ -27,11 +26,13 @@ export default class Chat extends React.Component {
   }
 
   componentDidMount() {
-    this.getUseTochatUser();
+    this.getFriendUsers();
     this.getRemoteUsers();
   }
 
-  getUseTochatUser() {
+  componentWillUnmount() {}
+
+  getFriendUsers() {
     const authUserID = auth().currentUser.uid;
     firestore()
       .collection('users')
