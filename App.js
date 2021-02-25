@@ -1,5 +1,5 @@
 import React from 'react';
-import {TouchableOpacity, Text, Image} from 'react-native';
+import {TouchableOpacity, Image, Text} from 'react-native';
 import 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -66,7 +66,7 @@ export default class Navigation extends React.PureComponent {
               ),
               headerLeft: () => (
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('ProFile')}>
+                  onPress={() => navigation.navigate('Profile')}>
                   <Image
                     style={{
                       width: 30,
@@ -121,7 +121,7 @@ export default class Navigation extends React.PureComponent {
       return (
         <Stack.Navigator>
           <Stack.Screen
-            name="ProFile"
+            name="Profile"
             component={ProfileScreen}
             options={{title: 'Profile'}}
           />
@@ -150,7 +150,7 @@ export default class Navigation extends React.PureComponent {
               }}
             />
             <Tab.Screen
-              name="ProfileScreen"
+              name="Profile"
               component={profileStack}
               options={{
                 title: 'Profile',

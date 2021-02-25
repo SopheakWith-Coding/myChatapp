@@ -11,32 +11,43 @@ import {
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import CheckBox from '@react-native-community/checkbox';
+import { color } from 'react-native-reanimated';
+
 const screenWidth = Dimensions.get('screen').width;
+
 export default class newGroupChatScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       users: [],
       selectedUser: [],
-      toggleCheckBo: null,
-      handleClckNext: null,
+      disabledText: false,
     };
   }
 
   componentDidMount() {
-    this.header();
+    this.renderNextButton();
     this.setRemoteUsers();
     this.getRemoteAuthUsers();
   }
 
-  header = () => {
+  renderNextButton = () => {
     const {navigation} = this.props;
+    const {selectedUser} = this.state;
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity
+          disabled={selectedUser.length < 2}
+          activeOpacity={0.1}
           onPress={() => this.CreateGroupRoom()}
           style={{marginRight: 15}}>
-          <Text style={{fontSize: 18}}>Next</Text>
+          <Text
+            style={{
+              fontSize: 18,
+              color: selectedUser.length < 2 ? 'gray' : 'black',
+            }}>
+            Next
+          </Text>
         </TouchableOpacity>
       ),
     });
@@ -48,22 +59,22 @@ export default class newGroupChatScreen extends React.Component {
     const data = await dbRef.once('value');
     const users = Object.values(data.val()).filter((val) => val.uuid === uid);
     users.map((val) => {
-      this.setState({authUser: val});
+      this.setState({authUserItem: val});
     });
   };
 
   CreateGroupRoom = () => {
     const {navigation} = this.props;
     const {selectedUser} = this.state;
-    const {authUser} = this.state;
-    const authUserID = authUser.uuid;
+    const {authUserItem} = this.state;
+    const authUserID = authUserItem.uuid;
     const chatIDpre = [];
     chatIDpre.push(authUserID);
     selectedUser.map((user) => {
       chatIDpre.push(user.uuid);
     });
     navigation.navigate('Create Group', {
-      authUser,
+      authUserItem,
       selectedUser,
       chatIDpre,
     });
@@ -89,7 +100,7 @@ export default class newGroupChatScreen extends React.Component {
     } else {
       this.setState({toggleCheckBox: false});
     }
-    this.setState({selectedUser: helperArray});
+    this.setState({selectedUser: helperArray}, this.renderNextButton);
   };
 
   render() {

@@ -19,7 +19,7 @@ export default class Chat extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      authUserName: {},
+      authUserItem: {},
       users: [],
       loading: false,
     };
@@ -27,10 +27,8 @@ export default class Chat extends React.Component {
 
   componentDidMount() {
     this.getFriendUsers();
-    this.getRemoteUsers();
+    this.getAuthUser();
   }
-
-  componentWillUnmount() {}
 
   getFriendUsers() {
     const authUserID = auth().currentUser.uid;
@@ -48,26 +46,26 @@ export default class Chat extends React.Component {
             ...documentSnapshot.data(),
           };
         });
+
         this.setState({users: threads});
       });
   }
 
-  getRemoteUsers = async () => {
+  getAuthUser = async () => {
     const dbRef = database().ref('users');
     const data = await dbRef.once('value');
     const {uid} = auth().currentUser;
-    const filterAuthUser = Object.values(data.val()).filter(
+    const filterAuthUser = Object.values(data.val()).find(
       (val) => val.uuid === uid,
     );
-    filterAuthUser.map((val) => {
-      this.setState({authUserName: val});
-    });
+    this.setState({authUserItem: filterAuthUser});
   };
 
   render() {
     const {users} = this.state;
-    const {authUserName} = this.state;
+    const {authUserItem} = this.state;
     const {navigation} = this.props;
+
     return (
       <View style={styles.container}>
         <FlatList
@@ -91,7 +89,7 @@ export default class Chat extends React.Component {
                     item,
                     chatIDpre,
                     chatID,
-                    authUserName,
+                    authUserItem,
                     title: `${item.name}`,
                   })
                 }>

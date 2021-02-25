@@ -42,7 +42,7 @@ export default class CreateChat extends React.Component {
     return chatIDpre.join('');
   };
 
-  CreateChatRoom = async (call, item, authUserName) => {
+  CreateChatRoom = async (call, item, authUserItem) => {
     const userName = `${item.name}`;
     const chatID = call(item);
     const welcomeMessage = {
@@ -76,7 +76,7 @@ export default class CreateChat extends React.Component {
       type,
       item,
       chatID,
-      authUserName,
+      authUserItem,
       title: userName,
     });
   };
@@ -120,7 +120,7 @@ export default class CreateChat extends React.Component {
     return (
       <View style={styles.container}>
         <FlatList
-          ListHeaderComponent={this.flatListHeader}
+          ListHeaderComponent={this.flatListHeader()}
           data={filterUser}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({item, index}) => {
@@ -132,11 +132,11 @@ export default class CreateChat extends React.Component {
                 };
             return (
               <React.Fragment>
-                {filterAuthUser.map((authUserName, key) => (
+                {filterAuthUser.map((authUserItem, key) => (
                   <TouchableOpacity
                     key
                     onPress={() =>
-                      this.CreateChatRoom(this.chatID, item, authUserName)
+                      this.CreateChatRoom(this.chatID, item, authUserItem)
                     }>
                     <View style={styles.SubContainer}>
                       <View style={styles.imageWrapper}>

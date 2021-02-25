@@ -1,6 +1,6 @@
 import React from 'react';
 import {Dimensions, Platform} from 'react-native';
-import {GiftedChat} from 'react-native-gifted-chat';
+import {GiftedChat, Bubble} from 'react-native-gifted-chat';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
@@ -56,6 +56,9 @@ class ChatRoom extends React.Component {
   };
 
   GroupSend = (messages) => {
+    const {authUserItem} = this.props.route.params;
+    const authUserName = authUserItem.name;
+    const authUserProfile = authUserItem.profileImage;
     const {chatID} = this.props.route.params;
     const {chatIDpre} = this.props.route.params;
     const authUid = auth().currentUser.uid;
@@ -73,6 +76,8 @@ class ChatRoom extends React.Component {
         createdAt: new Date().getTime(),
         user: {
           _id: authUid,
+          name: authUserName,
+          avatar: authUserProfile,
         },
       });
     const dbRef = firestore().collection('users');
@@ -84,10 +89,13 @@ class ChatRoom extends React.Component {
   };
 
   ChatsSend = (messages) => {
+    const {authUserItem} = this.props.route.params;
+    const authUserName = authUserItem.name;
+    const authUserProfile = authUserItem.profileImage;
     const {chatID} = this.props.route.params;
     const {item} = this.props.route.params;
+    const userName = `${item.name}`;
     const authUid = auth().currentUser.uid;
-    const {authUserName} = this.props.route.params;
     const chatterID = auth().currentUser.uid;
     const chateeID = item.uuid;
     const text = messages[0].text;
@@ -95,12 +103,10 @@ class ChatRoom extends React.Component {
       text: text,
       createdAt: new Date().getTime(),
     };
-    const userName = `${item.name}`;
-    const authName = authUserName.name;
     const image = item.profileImage
       ? `${item.profileImage}`
       : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
-    const authImage = authUserName.profileImage
+    const authImage = authUserItem.profileImage
       ? `${item.profileImage}`
       : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
     const membersID = [];
@@ -121,7 +127,7 @@ class ChatRoom extends React.Component {
     dbRef.doc(chateeID).collection('friends').doc(chatID).set({
       uuid: chatterID,
       roomID: chatID,
-      name: authName,
+      name: authUserName,
       profileImage: authImage,
       latestMessage: welcomeMessage,
       members: membersID,
@@ -137,6 +143,8 @@ class ChatRoom extends React.Component {
         createdAt: new Date().getTime(),
         user: {
           _id: authUid,
+          name: authUserName,
+          avatar: authUserProfile,
         },
       });
   };
@@ -155,6 +163,18 @@ class ChatRoom extends React.Component {
     }
   };
 
+  renderBubble = (props) => {
+    return (
+      <Bubble
+        {...props}
+        wrapperStyle={{
+          left: {backgroundColor: '#ECF87F'},
+          right: {backgroundColor: '#2EB5E0'},
+        }}
+      />
+    );
+  };
+
   render() {
     const authUid = auth().currentUser.uid;
     const {messages} = this.state;
@@ -169,6 +189,7 @@ class ChatRoom extends React.Component {
         user={{
           _id: authUid,
         }}
+        renderBubble={this.renderBubble}
       />
     );
   }

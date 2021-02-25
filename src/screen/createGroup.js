@@ -25,8 +25,8 @@ export default class CreateGroup extends React.Component {
   }
 
   CreateGroupMessages = () => {
-    const {authUser} = this.props.route.params;
-    const authID = authUser.uuid;
+    const {authUserItem} = this.props.route.params;
+    const authID = authUserItem.uuid;
     const {GroupName} = this.state;
     const {chatIDpre} = this.props.route.params;
     const welcomeMessage = {
@@ -66,6 +66,7 @@ export default class CreateGroup extends React.Component {
     const type = 'GroupChats';
     navigation.navigate('ChatRoom', {
       type,
+      authUserItem,
       chatIDpre,
       chatID,
       title: GroupName,
@@ -74,12 +75,20 @@ export default class CreateGroup extends React.Component {
 
   header = () => {
     const {navigation} = this.props;
+    const {GroupName} = this.state;
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity
+          disabled={GroupName.length === 0}
           onPress={() => this.CreateGroupMessages()}
           style={{marginRight: 15}}>
-          <Text style={{fontSize: 18}}>Create</Text>
+          <Text
+            style={{
+              fontSize: 18,
+              color: GroupName.length === 0 ? 'grey' : 'black',
+            }}>
+            Create
+          </Text>
         </TouchableOpacity>
       ),
     });
@@ -106,7 +115,9 @@ export default class CreateGroup extends React.Component {
             autoFocus
             style={styles.GroupNameInput}
             placeholder="Group name is required"
-            onChangeText={(GroupName) => this.setState({GroupName})}
+            onChangeText={(GroupName) =>
+              this.setState({GroupName}, this.header)
+            }
           />
         </View>
         <FlatList
