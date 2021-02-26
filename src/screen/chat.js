@@ -46,7 +46,6 @@ export default class Chat extends React.Component {
             ...documentSnapshot.data(),
           };
         });
-
         this.setState({users: threads});
       });
   }
@@ -75,12 +74,7 @@ export default class Chat extends React.Component {
             const type = item.type;
             const chatIDpre = item.members;
             const chatID = item.roomID;
-            const image = item.profileImage
-              ? {uri: item.profileImage}
-              : {
-                  uri:
-                    'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=',
-                };
+            const image = item.profileImage;
             return (
               <TouchableOpacity
                 onPress={() =>
@@ -97,7 +91,7 @@ export default class Chat extends React.Component {
                   <View style={styles.imageWrapper}>
                     <Image
                       style={{width: 50, height: 50, borderRadius: 50}}
-                      source={image}
+                      source={{uri: image}}
                     />
                   </View>
 

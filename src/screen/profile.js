@@ -13,23 +13,27 @@ import database from '@react-native-firebase/database';
 import ImagePicker from 'react-native-image-crop-picker';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import storage from '@react-native-firebase/storage';
+import firestore from '@react-native-firebase/firestore';
 
 const screenWidth = Dimensions.get('screen').width;
 export default class Profile extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      profileImage: null,
       users: [],
     };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
+    this.authUserItem();
+  }
+
+  authUserItem = async () => {
     const authUid = auth().currentUser.uid;
     const ref = database().ref(`users/${authUid}`);
     const data = await ref.once('value');
     this.setState({users: data.val()});
-  }
+  };
 
   Loutout = () => {
     auth().signOut();
@@ -48,23 +52,39 @@ export default class Profile extends React.Component {
         .ref(`profileImage/${imageUri}`)
         .getDownloadURL();
       const authUid = auth().currentUser.uid;
-      database()
-        .ref(`users/${authUid}`)
-        .update({
-          profileImage: url,
-        })
-        .then(() => this.setState({profileImage: url}));
+      database().ref(`users/${authUid}`).update({
+        profileImage: url,
+      });
+      this.authUserItem();
     });
   };
 
+  getFriendUsers() {
+    const authUserID = auth().currentUser.uid;
+    firestore()
+      .collection('users')
+      .doc(authUserID)
+      .collection('friends')
+      .onSnapshot((querySnapshot) => {
+        const threads = querySnapshot.docs.map((documentSnapshot) => {
+          return {
+            _id: documentSnapshot.id,
+            name: '',
+            profileImage: '',
+            latestMessage: {text: ''},
+            ...documentSnapshot.data(),
+          };
+        });
+        threads.map((val) => {
+          console.log(val.uuid);
+        });
+        this.setState({users: threads});
+      });
+  }
+
   render() {
     const {users} = this.state;
-    const image = users.profileImage
-      ? {uri: users.profileImage}
-      : {
-          uri:
-            'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=',
-        };
+    const image = users.profileImage;
     return (
       <View style={styles.container}>
         <View style={styles.subContainer}>
@@ -72,7 +92,7 @@ export default class Profile extends React.Component {
             <TouchableOpacity onPress={() => this.handleChoosePhoto()}>
               <Image
                 style={{width: 120, height: 120, borderRadius: 60}}
-                source={image}
+                source={{uri: image}}
               />
             </TouchableOpacity>
           </View>

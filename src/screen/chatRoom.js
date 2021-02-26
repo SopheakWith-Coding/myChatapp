@@ -103,12 +103,8 @@ class ChatRoom extends React.Component {
       text: text,
       createdAt: new Date().getTime(),
     };
-    const image = item.profileImage
-      ? `${item.profileImage}`
-      : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
-    const authImage = authUserItem.profileImage
-      ? `${item.profileImage}`
-      : 'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
+    const image = item.profileImage;
+    const authImage = authUserItem.profileImage;
     const membersID = [];
     membersID.push(chatterID);
     membersID.push(chateeID);

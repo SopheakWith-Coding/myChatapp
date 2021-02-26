@@ -64,7 +64,9 @@ class Signup extends React.Component {
       confirmPassword,
       profileImage,
     } = this.state;
-
+    const placeholderImage =
+      'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=';
+    const imagePath = profileImage ? profileImage : placeholderImage;
     auth()
       .createUserWithEmailAndPassword(email, password)
       .then((user) => {
@@ -78,7 +80,7 @@ class Signup extends React.Component {
             dob: day + ' ' + month + ' ' + year,
             password: password,
             confirmpassword: confirmPassword,
-            profileImage: profileImage,
+            profileImage: imagePath,
             uuid: uid,
           })
           .then(() => console.log('Data set.'));

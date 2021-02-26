@@ -80,7 +80,6 @@ export default class CreateChat extends React.Component {
       title: userName,
     });
   };
-
   flatListHeader = () => {
     const goToImage = {
       uri:
@@ -124,12 +123,7 @@ export default class CreateChat extends React.Component {
           data={filterUser}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({item, index}) => {
-            const image = item.profileImage
-              ? {uri: `${item.profileImage}`}
-              : {
-                  uri:
-                    'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=',
-                };
+            const image = item.profileImage;
             return (
               <React.Fragment>
                 {filterAuthUser.map((authUserItem, key) => (
@@ -142,7 +136,7 @@ export default class CreateChat extends React.Component {
                       <View style={styles.imageWrapper}>
                         <Image
                           style={{width: 50, height: 50, borderRadius: 50}}
-                          source={image}
+                          source={{uri: image}}
                         />
                       </View>
                       <View style={styles.TextWrapper}>

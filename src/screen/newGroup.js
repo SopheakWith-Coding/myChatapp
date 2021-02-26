@@ -11,7 +11,6 @@ import {
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import CheckBox from '@react-native-community/checkbox';
-import { color } from 'react-native-reanimated';
 
 const screenWidth = Dimensions.get('screen').width;
 
