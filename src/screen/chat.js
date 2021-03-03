@@ -21,6 +21,7 @@ export default class Chat extends React.Component {
     this.state = {
       authUserItem: {},
       users: [],
+      UserItem: [],
       loading: false,
     };
   }
@@ -28,6 +29,7 @@ export default class Chat extends React.Component {
   componentDidMount() {
     this.getFriendUsers();
     this.getAuthUser();
+    this.getUser();
   }
 
   getFriendUsers() {
@@ -50,6 +52,12 @@ export default class Chat extends React.Component {
       });
   }
 
+  getUser = async () => {
+    const dbRef = database().ref('users');
+    const data = await dbRef.once('value');
+    this.setState({UserItem: Object.values(data.val())});
+  };
+
   getAuthUser = async () => {
     const dbRef = database().ref('users');
     const data = await dbRef.once('value');
@@ -60,56 +68,59 @@ export default class Chat extends React.Component {
     this.setState({authUserItem: filterAuthUser});
   };
 
+  renderItem = (item, index) => {
+    const {navigation} = this.props;
+    const {authUserItem} = this.state;
+    const type = item.type;
+    const chatIDpre = item.members;
+    const chatID = item.roomID;
+    const image = item.profileImage;
+
+    return (
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate('ChatRoom', {
+            type,
+            item,
+            chatIDpre,
+            chatID,
+            authUserItem,
+            title: `${item.name}`,
+          })
+        }>
+        <View style={styles.SubContainer}>
+          <View style={styles.imageWrapper}>
+            <Image
+              style={{width: 50, height: 50, borderRadius: 50}}
+              source={{uri: image}}
+            />
+          </View>
+
+          <View style={styles.TextWrapper}>
+            <Text style={styles.TextTitle}>{item.name}</Text>
+            <Text style={styles.TextSubTitle}>
+              {item.latestMessage.text.slice(0, 90)}
+            </Text>
+          </View>
+          <View style={styles.TimeWrapper}>
+            <Text>
+              {moment(item.latestMessage.createdAt).format('hh:mm A')}
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+
   render() {
     const {users} = this.state;
-    const {authUserItem} = this.state;
-    const {navigation} = this.props;
 
     return (
       <View style={styles.container}>
         <FlatList
           data={users}
           keyExtractor={(item, index) => index.toString()}
-          renderItem={({item, index}) => {
-            const type = item.type;
-            const chatIDpre = item.members;
-            const chatID = item.roomID;
-            const image = item.profileImage;
-            return (
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate('ChatRoom', {
-                    type,
-                    item,
-                    chatIDpre,
-                    chatID,
-                    authUserItem,
-                    title: `${item.name}`,
-                  })
-                }>
-                <View style={styles.SubContainer}>
-                  <View style={styles.imageWrapper}>
-                    <Image
-                      style={{width: 50, height: 50, borderRadius: 50}}
-                      source={{uri: image}}
-                    />
-                  </View>
-
-                  <View style={styles.TextWrapper}>
-                    <Text style={styles.TextTitle}>{item.name}</Text>
-                    <Text style={styles.TextSubTitle}>
-                      {item.latestMessage.text.slice(0, 90)}
-                    </Text>
-                  </View>
-                  <View style={styles.TimeWrapper}>
-                    <Text>
-                      {moment(item.latestMessage.createdAt).format('hh:mm A')}
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            );
-          }}
+          renderItem={({item, index}) => this.renderItem(item, index)}
         />
       </View>
     );
