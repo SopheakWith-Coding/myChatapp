@@ -110,8 +110,7 @@ export default class Chat extends React.Component {
         </View>
       </TouchableOpacity>
     );
-  }
-
+  };
   render() {
     const {users} = this.state;
 
