@@ -22,7 +22,7 @@ class ChatRoom extends React.Component {
   fetchChatMessages = () => {
     const {chatID} = this.props.route.params;
     firestore()
-      .collection('Chats')
+      .collection('messages')
       .doc(chatID)
       .collection('messages')
       .orderBy('createdAt', 'desc')
@@ -68,7 +68,7 @@ class ChatRoom extends React.Component {
       createdAt: new Date().getTime(),
     };
     firestore()
-      .collection('Chats')
+      .collection('messages')
       .doc(chatID)
       .collection('messages')
       .add({
@@ -131,7 +131,7 @@ class ChatRoom extends React.Component {
       type: 'Chats',
     });
     firestore()
-      .collection('Chats')
+      .collection('messages')
       .doc(chatID)
       .collection('messages')
       .add({

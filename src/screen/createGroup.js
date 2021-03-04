@@ -53,7 +53,7 @@ export default class CreateGroup extends React.Component {
       });
     });
     const smgRef = firestore()
-      .collection('Chats')
+      .collection('messages')
       .doc(chatID)
       .collection('messages');
     smgRef.doc().set({

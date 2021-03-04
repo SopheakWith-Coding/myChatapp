@@ -56,7 +56,7 @@ export default class CreateChat extends React.Component {
       createdAt: new Date().getTime(),
     };
     const smgRef = firestore()
-      .collection('Chats')
+      .collection('messages')
       .doc(chatID)
       .collection('messages');
     const result = await smgRef.where('readed', '==', true).limit(1).get();
