@@ -11,9 +11,9 @@ import {
 } from 'react-native';
 import {TextInput} from 'react-native-gesture-handler';
 import auth from '@react-native-firebase/auth';
-import database from '@react-native-firebase/database';
 import ImagePicker from 'react-native-image-crop-picker';
 import storage from '@react-native-firebase/storage';
+import firestore from '@react-native-firebase/firestore';
 
 const screenWidth = Dimensions.get('screen').width;
 
@@ -61,7 +61,6 @@ class Signup extends React.Component {
       month,
       year,
       password,
-      confirmPassword,
       profileImage,
     } = this.state;
     const placeholderImage =
@@ -71,15 +70,15 @@ class Signup extends React.Component {
       .createUserWithEmailAndPassword(email, password)
       .then((user) => {
         const uid = user.user.uid;
-        database()
-          .ref(`/users/${uid}`)
+        firestore()
+          .collection('users')
+          .doc(`${uid}`)
           .set({
             name: firstName + ' ' + lastName,
             email: email,
             phonenumber: phonenumber,
             dob: day + ' ' + month + ' ' + year,
             password: password,
-            confirmpassword: confirmPassword,
             profileImage: imagePath,
             uuid: uid,
           })

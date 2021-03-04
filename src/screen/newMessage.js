@@ -8,7 +8,6 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
-import database from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
@@ -23,13 +22,20 @@ export default class CreateChat extends React.Component {
   }
 
   componentDidMount() {
-    this.setRemoteUsers();
+    this.getUsersItems();
   }
 
-  setRemoteUsers = async () => {
-    const dbRef = database().ref('users');
-    const data = await dbRef.once('value');
-    this.setState({users: Object.values(data.val())});
+  getUsersItems = async () => {
+    firestore()
+      .collection('users')
+      .onSnapshot((querySnapshot) => {
+        const threads = querySnapshot.docs.map((documentSnapshot) => {
+          return {
+            ...documentSnapshot.data(),
+          };
+        });
+        this.setState({users: threads});
+      });
   };
 
   chatID = (item) => {

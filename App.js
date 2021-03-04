@@ -6,6 +6,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import auth from '@react-native-firebase/auth';
 import {HeaderBackButton} from '@react-navigation/stack';
+import firestore from '@react-native-firebase/firestore';
 
 import LoginScreen from './src/screen/login';
 import SignUpScreen from './src/screen/signup';
@@ -13,7 +14,6 @@ import ChatRoom from './src/screen/chatRoom';
 import createChatScreen from './src/screen/newMessage';
 import newGroupChatScreen from './src/screen/newGroup';
 import createGroupChatScreen from './src/screen/createGroup';
-import database from '@react-native-firebase/database';
 
 import ChatScreen from './src/screen/chat';
 import ProfileScreen from './src/screen/profile';
@@ -31,20 +31,26 @@ export default class Navigation extends React.PureComponent {
   async componentDidMount() {
     auth().onAuthStateChanged((user) => this.setState({user}));
     const authUid = auth().currentUser.uid;
-    const ref = database().ref(`users/${authUid}`);
-    const data = await ref.once('value');
-    this.setState({users: data.val()});
+    firestore()
+      .collection('users')
+      .where('uuid', '==', authUid)
+      .onSnapshot((querySnapshot) => {
+        const threads = querySnapshot.docs.map((documentSnapshot) => {
+          return {
+            ...documentSnapshot.data(),
+          };
+        });
+        this.setState({users: threads});
+      });
   }
 
   render() {
     const {user} = this.state;
     const {users} = this.state;
-    const image = users.profileImage
-      ? {uri: users.profileImage}
-      : {
-          uri:
-            'https://media.istockphoto.com/vectors/default-profile-picture-avatar-photo-placeholder-vector-illustration-vector-id1214428300?b=1&k=6&m=1214428300&s=612x612&w=0&h=kMXMpWVL6mkLu0TN-9MJcEUx1oSWgUq8-Ny6Wszv_ms=',
-        };
+    const image = users.map((val) => {
+      const img = val.profileImage;
+      return img;
+    });
 
     function chatStack() {
       return (

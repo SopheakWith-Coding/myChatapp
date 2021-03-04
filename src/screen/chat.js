@@ -11,7 +11,6 @@ import {
 import auth from '@react-native-firebase/auth';
 import moment from 'moment';
 import firestore from '@react-native-firebase/firestore';
-import database from '@react-native-firebase/database';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -28,8 +27,7 @@ export default class Chat extends React.Component {
 
   componentDidMount() {
     this.getFriendUsers();
-    this.getAuthUser();
-    this.getUser();
+    this.getAuthUserItem();
   }
 
   getFriendUsers() {
@@ -52,20 +50,21 @@ export default class Chat extends React.Component {
       });
   }
 
-  getUser = async () => {
-    const dbRef = database().ref('users');
-    const data = await dbRef.once('value');
-    this.setState({UserItem: Object.values(data.val())});
-  };
-
-  getAuthUser = async () => {
-    const dbRef = database().ref('users');
-    const data = await dbRef.once('value');
-    const {uid} = auth().currentUser;
-    const filterAuthUser = Object.values(data.val()).find(
-      (val) => val.uuid === uid,
-    );
-    this.setState({authUserItem: filterAuthUser});
+  getAuthUserItem = async () => {
+    const authUid = auth().currentUser.uid;
+    firestore()
+      .collection('users')
+      .where('uuid', '==', authUid)
+      .onSnapshot((querySnapshot) => {
+        const threads = querySnapshot.docs.map((documentSnapshot) => {
+          return {
+            ...documentSnapshot.data(),
+          };
+        });
+        threads.map((item) => {
+          this.setState({authUserItem: item});
+        });
+      });
   };
 
   renderItem = (item, index) => {

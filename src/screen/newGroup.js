@@ -9,8 +9,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
-import database from '@react-native-firebase/database';
 import CheckBox from '@react-native-community/checkbox';
+import firestore from '@react-native-firebase/firestore';
 
 const screenWidth = Dimensions.get('screen').width;
 
@@ -26,7 +26,7 @@ export default class newGroupChatScreen extends React.Component {
 
   componentDidMount() {
     this.renderNextButton();
-    this.setRemoteUsers();
+    this.getRemoteUsers();
     this.getRemoteAuthUsers();
   }
 
@@ -53,13 +53,20 @@ export default class newGroupChatScreen extends React.Component {
   };
 
   getRemoteAuthUsers = async () => {
-    const {uid} = auth().currentUser;
-    const dbRef = database().ref('users');
-    const data = await dbRef.once('value');
-    const users = Object.values(data.val()).filter((val) => val.uuid === uid);
-    users.map((val) => {
-      this.setState({authUserItem: val});
-    });
+    const authUid = auth().currentUser.uid;
+    firestore()
+      .collection('users')
+      .where('uuid', '==', authUid)
+      .onSnapshot((querySnapshot) => {
+        const threads = querySnapshot.docs.map((documentSnapshot) => {
+          return {
+            ...documentSnapshot.data(),
+          };
+        });
+        threads.map((item) => {
+          this.setState({authUserItem: item});
+        });
+      });
   };
 
   CreateGroupRoom = () => {
@@ -79,10 +86,19 @@ export default class newGroupChatScreen extends React.Component {
     });
   };
 
-  setRemoteUsers = async () => {
-    const dbRef = database().ref('users');
-    const data = await dbRef.once('value');
-    this.setState({users: Object.values(data.val())});
+  getRemoteUsers = async () => {
+    const authUid = auth().currentUser.uid;
+    firestore()
+      .collection('users')
+      .where('uuid', '!=', authUid)
+      .onSnapshot((querySnapshot) => {
+        const threads = querySnapshot.docs.map((documentSnapshot) => {
+          return {
+            ...documentSnapshot.data(),
+          };
+        });
+        this.setState({users: threads});
+      });
   };
 
   selectedItem = (item) => {
@@ -104,8 +120,6 @@ export default class newGroupChatScreen extends React.Component {
 
   render() {
     const {users, selectedUser, toggleCheckBox} = this.state;
-    const {uid} = auth().currentUser;
-    const filterUser = users.filter((val) => val.uuid !== uid);
     return (
       <View style={styles.container}>
         {toggleCheckBox ? (
@@ -144,7 +158,7 @@ export default class newGroupChatScreen extends React.Component {
         )}
 
         <FlatList
-          data={filterUser}
+          data={users}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({item, index}) => {
             const image = item.profileImage

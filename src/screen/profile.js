@@ -30,9 +30,19 @@ export default class Profile extends React.Component {
 
   authUserItem = async () => {
     const authUid = auth().currentUser.uid;
-    const ref = database().ref(`users/${authUid}`);
-    const data = await ref.once('value');
-    this.setState({users: data.val()});
+    firestore()
+      .collection('users')
+      .where('uuid', '==', authUid)
+      .onSnapshot((querySnapshot) => {
+        const threads = querySnapshot.docs.map((documentSnapshot) => {
+          return {
+            ...documentSnapshot.data(),
+          };
+        });
+        threads.map((item) => {
+          this.setState({users: item});
+        });
+      });
   };
 
   Loutout = () => {
@@ -52,35 +62,12 @@ export default class Profile extends React.Component {
         .ref(`profileImage/${imageUri}`)
         .getDownloadURL();
       const authUid = auth().currentUser.uid;
-      database().ref(`users/${authUid}`).update({
+      firestore().collection('users').doc(authUid).update({
         profileImage: url,
       });
       this.authUserItem();
     });
   };
-
-  getFriendUsers() {
-    const authUserID = auth().currentUser.uid;
-    firestore()
-      .collection('users')
-      .doc(authUserID)
-      .collection('friends')
-      .onSnapshot((querySnapshot) => {
-        const threads = querySnapshot.docs.map((documentSnapshot) => {
-          return {
-            _id: documentSnapshot.id,
-            name: '',
-            profileImage: '',
-            latestMessage: {text: ''},
-            ...documentSnapshot.data(),
-          };
-        });
-        threads.map((val) => {
-          console.log(val.uuid);
-        });
-        this.setState({users: threads});
-      });
-  }
 
   render() {
     const {users} = this.state;
