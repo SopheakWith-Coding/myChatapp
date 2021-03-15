@@ -51,14 +51,17 @@ export default class CreateChat extends React.Component {
   CreateChatRoom = async (call, item, authUserItem) => {
     const userName = `${item.name}`;
     const chatID = call(item);
+    const chatterID = auth().currentUser.uid;
+    const chateeID = item.uuid;
+    const membersID = [];
+    membersID.push(chatterID);
+    membersID.push(chateeID);
+    membersID.sort();
     const welcomeMessage = {
       text: "You're friend on Chatapp",
       createdAt: new Date().getTime(),
     };
-    const smgRef = firestore()
-      .collection('messages')
-      .doc(chatID)
-      .collection('messages');
+    const smgRef = firestore().collection('messages');
     const result = await smgRef.where('readed', '==', true).limit(1).get();
     if (result.empty) {
       smgRef.doc().set({
@@ -66,6 +69,7 @@ export default class CreateChat extends React.Component {
         ...welcomeMessage,
         system: true,
         readed: true,
+        roomID: chatID,
       });
     } else {
       smgRef.doc().update({
@@ -73,6 +77,7 @@ export default class CreateChat extends React.Component {
         ...welcomeMessage,
         system: true,
         readed: true,
+        roomID: chatID,
       });
     }
 
@@ -81,11 +86,13 @@ export default class CreateChat extends React.Component {
     navigation.navigate('ChatRoom', {
       type,
       item,
+      membersID,
       chatID,
       authUserItem,
       title: userName,
     });
   };
+
   flatListHeader = () => {
     const goToImage = {
       uri:

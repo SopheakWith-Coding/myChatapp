@@ -74,15 +74,15 @@ export default class newGroupChatScreen extends React.Component {
     const {selectedUser} = this.state;
     const {authUserItem} = this.state;
     const authUserID = authUserItem.uuid;
-    const chatIDpre = [];
-    chatIDpre.push(authUserID);
+    const membersID = [];
+    membersID.push(authUserID);
     selectedUser.map((user) => {
-      chatIDpre.push(user.uuid);
+      membersID.push(user.uuid);
     });
     navigation.navigate('Create Group', {
       authUserItem,
       selectedUser,
-      chatIDpre,
+      membersID,
     });
   };
 

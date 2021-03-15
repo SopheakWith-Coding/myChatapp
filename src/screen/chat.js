@@ -33,16 +33,11 @@ export default class Chat extends React.Component {
   getFriendUsers() {
     const authUserID = auth().currentUser.uid;
     firestore()
-      .collection('users')
-      .doc(authUserID)
-      .collection('friends')
+      .collection('channels')
+      .where('members', 'array-contains', authUserID)
       .onSnapshot((querySnapshot) => {
         const threads = querySnapshot.docs.map((documentSnapshot) => {
           return {
-            _id: documentSnapshot.id,
-            name: '',
-            profileImage: '',
-            latestMessage: {text: ''},
             ...documentSnapshot.data(),
           };
         });
@@ -71,7 +66,7 @@ export default class Chat extends React.Component {
     const {navigation} = this.props;
     const {authUserItem} = this.state;
     const type = item.type;
-    const chatIDpre = item.members;
+    const membersID = item.members;
     const chatID = item.roomID;
     const image = item.profileImage;
 
@@ -81,7 +76,7 @@ export default class Chat extends React.Component {
           navigation.navigate('ChatRoom', {
             type,
             item,
-            chatIDpre,
+            membersID,
             chatID,
             authUserItem,
             title: `${item.name}`,
@@ -110,9 +105,9 @@ export default class Chat extends React.Component {
       </TouchableOpacity>
     );
   };
+
   render() {
     const {users} = this.state;
-
     return (
       <View style={styles.container}>
         <FlatList

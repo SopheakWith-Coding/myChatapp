@@ -26,48 +26,43 @@ export default class CreateGroup extends React.Component {
 
   CreateGroupMessages = () => {
     const {authUserItem} = this.props.route.params;
-    const authID = authUserItem.uuid;
     const {GroupName} = this.state;
-    const {chatIDpre} = this.props.route.params;
+    const {membersID} = this.props.route.params;
     const welcomeMessage = {
       text: "You're friend on Chatapp",
       createdAt: new Date().getTime(),
     };
-    const groupRef = firestore()
-      .collection('users')
-      .doc()
-      .collection('friends')
-      .doc();
+    const groupRef = firestore().collection('messages').doc();
     const chatID = groupRef.id;
+    const chats = {
+      [chatID]: true,
+    };
     const dbRef = firestore().collection('users');
-    chatIDpre.forEach((element) => {
-      dbRef.doc(element).collection('friends').doc(chatID).set({
-        uuid: element,
-        name: GroupName,
-        profileImage: '',
-        latestMessage: welcomeMessage,
-        members: chatIDpre,
-        creator: authID,
-        type: 'GroupChats',
-        roomID: chatID,
-      });
+    membersID.forEach((element) => {
+      dbRef.doc(element).set({chats}, {merge: true});
     });
-    const smgRef = firestore()
-      .collection('messages')
-      .doc(chatID)
-      .collection('messages');
-    smgRef.doc().set({
+
+    const smgRef = firestore().collection('messages').doc(chatID);
+    smgRef.set({
       createdAt: new Date().getTime(),
       ...welcomeMessage,
       system: true,
       readed: true,
+      roomID: chatID,
+    });
+    firestore().collection('channels').doc(chatID).set({
+      latestMessage: welcomeMessage,
+      name: GroupName,
+      members: membersID,
+      type: 'GroupChats',
+      roomID: chatID,
     });
     const {navigation} = this.props;
     const type = 'GroupChats';
     navigation.navigate('ChatRoom', {
       type,
       authUserItem,
-      chatIDpre,
+      membersID,
       chatID,
       title: GroupName,
     });
