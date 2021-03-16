@@ -32,6 +32,7 @@ export default class Chat extends React.Component {
 
   getFriendUsers() {
     const authUserID = auth().currentUser.uid;
+
     firestore()
       .collection('channels')
       .where('members', 'array-contains', authUserID)
@@ -68,7 +69,7 @@ export default class Chat extends React.Component {
     const type = item.type;
     const membersID = item.members;
     const chatID = item.roomID;
-    const image = item.profileImage;
+    const profileImage = {uri: item.profileImage};
 
     return (
       <TouchableOpacity
@@ -86,7 +87,7 @@ export default class Chat extends React.Component {
           <View style={styles.imageWrapper}>
             <Image
               style={{width: 50, height: 50, borderRadius: 50}}
-              source={{uri: image}}
+              source={profileImage}
             />
           </View>
 
@@ -140,6 +141,7 @@ const styles = StyleSheet.create({
   },
   TextWrapper: {
     marginVertical: 1,
+    marginLeft: 20,
     justifyContent: 'center',
     width: screenWidth / 2 + 35,
   },
@@ -153,6 +155,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   TextSubTitle: {
+    marginTop: 10,
     fontSize: 14,
   },
 });
